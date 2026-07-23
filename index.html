@@ -1,452 +1,506 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full bg-slate-900">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Vehicle Information System - Parivahan Service</title>
+    <title>Vehicle Details Finder | RC Info Portal</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome for Icons -->
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f6ff',
+                            100: '#e0edff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        /* Print Styles */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-border {
+                border: 1px solid #cbd5e1 !important;
+                box-shadow: none !important;
+            }
+        }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-blue-500 selection:text-white">
+<body class="h-full text-slate-100 flex flex-col font-sans antialiased bg-slate-900">
 
     <!-- Header / Navbar -->
-    <header class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700/60 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-col sm:flex-row justify-between items-center gap-4">
+    <header class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700/60 sticky top-0 z-50 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="bg-gradient-to-tr from-blue-600 to-indigo-500 text-white p-2.5 rounded-xl shadow-lg shadow-blue-500/20 font-bold text-lg">
-                    <i class="fa-solid fa-shield-halved"></i>
+                <div class="bg-blue-600/20 text-blue-400 p-2.5 rounded-xl border border-blue-500/30">
+                    <i class="fa-solid fa-car-rear text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-base font-bold tracking-tight text-white flex items-center gap-2">
-                        PARIVAHAN PORTAL <span class="bg-blue-500/20 text-blue-400 text-[10px] px-2 py-0.5 rounded-full border border-blue-500/30">PRO V2</span>
-                    </h1>
-                    <p class="text-xs text-slate-400">Next-Gen Vehicle Verification System</p>
+                    <h1 class="text-xl font-bold tracking-tight text-white">VahanDetails<span class="text-blue-500">.io</span></h1>
+                    <p class="text-xs text-slate-400">RC & Vehicle Info Portal</p>
                 </div>
             </div>
-
-            <!-- Search Form -->
-            <div class="w-full sm:w-auto flex items-center bg-slate-900 border border-slate-700 rounded-xl overflow-hidden p-1 shadow-inner">
-                <span class="pl-3 text-slate-500 text-sm"><i class="fa-solid fa-magnifying-glass"></i></span>
-                <input type="text" id="regInput" placeholder="Enter Vehicle No (e.g. DL4SDH5925)" 
-                    class="px-3 py-2 text-slate-200 bg-transparent outline-none w-full sm:w-60 text-sm uppercase placeholder:text-slate-500 font-semibold tracking-wider">
-                <button onclick="fetchVehicleData()" 
-                    class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 text-sm font-semibold rounded-lg transition duration-200 shadow-md shadow-blue-600/30">
-                    Search
+            <div class="flex items-center space-x-3">
+                <button onclick="window.print()" class="hidden sm:inline-flex items-center space-x-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm px-4 py-2 rounded-lg transition-all duration-200 border border-slate-600">
+                    <i class="fa-solid fa-print text-xs"></i>
+                    <span>Print Page</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Content Container -->
-    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
-
-        <!-- Initial state / Instructions -->
-        <div id="welcomeState" class="text-center py-20">
-            <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-blue-600/10 border border-blue-500/20 text-blue-400 text-3xl mb-6 shadow-2xl">
-                <i class="fa-solid fa-car-rear"></i>
-            </div>
-            <h2 class="text-2xl sm:text-3xl font-extrabold text-white mb-3">Instant RC & Vehicle Search</h2>
-            <p class="text-slate-400 max-w-md mx-auto mb-8 text-sm leading-relaxed">Enter any valid vehicle registration number above to extract live ownership, insurance, RTO, and specification details.</p>
-            <button onclick="loadDefaultData()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold px-7 py-3 rounded-xl shadow-lg shadow-emerald-600/20 transition duration-200 text-sm">
-                <i class="fa-solid fa-bolt mr-2"></i> Load Demo Vehicle (DL4SDH5925)
-            </button>
-        </div>
-
-        <!-- Loader -->
-        <div id="loader" class="hidden text-center py-24">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent shadow-lg"></div>
-            <p class="text-slate-400 mt-4 text-sm font-medium tracking-wide">Fetching secure vehicle records...</p>
-        </div>
-
-        <!-- Error Message Box -->
-        <div id="errorMessage" class="hidden bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3.5 rounded-xl max-w-lg mx-auto mb-6 text-center text-sm" role="alert">
-            <i class="fa-solid fa-triangle-exclamation mr-2"></i>
-            <span id="errorText" class="font-medium">Unable to fetch details. Please check the registration number.</span>
-        </div>
-
-        <!-- Result Dashboard -->
-        <div id="resultContainer" class="hidden space-y-6">
-            
-            <!-- Top Hero Summary Banner with Maker Logo and Dynamic Status -->
-            <div class="relative overflow-hidden bg-gradient-to-br from-slate-800 via-slate-800 to-slate-900 border border-slate-700/80 rounded-2xl shadow-xl p-6 sm:p-8">
-                <div class="absolute -right-10 -bottom-10 text-slate-700/20 text-9xl pointer-events-none">
-                    <i id="bgWatermarkIcon" class="fa-solid fa-motorcycle"></i>
-                </div>
-                <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                    <div class="space-y-2">
-                        <div class="flex items-center gap-2">
-                            <span id="badgeVehicleType" class="bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-bold">Two Wheeler</span>
-                            <span id="badgeStatus" class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-bold flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> ACTIVE
-                            </span>
-                        </div>
-                        <h2 id="resRegNo" class="text-3xl sm:text-4xl font-extrabold tracking-wider text-white">DL4SDH5925</h2>
-                        <!-- Maker Logo + Model Name -->
-                        <div class="flex items-center gap-3 pt-1">
-                            <div id="makerLogoContainer" class="w-9 h-9 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base shadow-sm">
-                                <i class="fa-solid fa-industry"></i>
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        
+        <!-- Search Section -->
+        <section class="bg-slate-800/50 border border-slate-700/70 rounded-2xl p-6 sm:p-8 backdrop-blur-sm shadow-xl no-print">
+            <div class="max-w-3xl mx-auto text-center space-y-4">
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Search Vehicle Details</h2>
+                <p class="text-slate-400 text-sm sm:text-base">Enter any Registration Number (RC) to fetch comprehensive owner, vehicle, and RTO information.</p>
+                
+                <form id="searchForm" onsubmit="handleSearch(event)" class="pt-2">
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="relative flex-1">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-id-card text-lg"></i>
                             </div>
-                            <div>
-                                <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold" id="resMaker">HERO MOTOCORP LTD</p>
-                                <p class="text-lg font-bold text-white tracking-wide" id="resModel">SPLENDOR +</p>
-                            </div>
+                            <input 
+                                type="text" 
+                                id="vehicleInput" 
+                                placeholder="e.g. UP32FT8571" 
+                                uppercase
+                                required
+                                class="w-full pl-11 pr-4 py-3.5 bg-slate-900/90 border border-slate-700 rounded-xl text-white placeholder-slate-500 font-semibold tracking-wider focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all uppercase"
+                            />
                         </div>
+                        <button 
+                            type="submit" 
+                            id="searchBtn"
+                            class="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-8 py-3.5 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg shadow-blue-600/20 active:scale-95"
+                        >
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <span>Search Info</span>
+                        </button>
                     </div>
-                    
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-slate-900/60 backdrop-blur-md p-4 rounded-xl border border-slate-700/60 w-full md:w-auto">
-                        <div>
-                            <p class="text-slate-400 text-[11px] uppercase tracking-wider">Owner Name</p>
-                            <p id="resOwner" class="font-bold text-white text-sm mt-0.5 truncate max-w-[140px]">SANDIL RAJ</p>
-                        </div>
-                        <div>
-                            <p class="text-slate-400 text-[11px] uppercase tracking-wider">Registration Date</p>
-                            <p id="resRegDate" class="font-bold text-white text-sm mt-0.5">28/08/2016</p>
-                        </div>
-                        <div class="col-span-2 sm:col-span-1">
-                            <p class="text-slate-400 text-[11px] uppercase tracking-wider">Fuel Type</p>
-                            <p id="resFuel" class="font-bold text-white text-sm mt-0.5">PETROL</p>
-                        </div>
-                    </div>
-                </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Status Message / Loader Container -->
+        <div id="statusContainer" class="hidden no-print">
+            <!-- Loading State -->
+            <div id="loadingState" class="hidden bg-slate-800/40 border border-slate-700/50 rounded-2xl p-12 text-center space-y-4">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+                <p class="text-slate-300 font-medium">Fetching vehicle record from RTO server...</p>
             </div>
 
-            <!-- Grid Cards Layout -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-                <!-- Card 1: Owner & Customer Details -->
-                <div class="bg-slate-800/60 backdrop-blur border border-slate-700/60 rounded-2xl p-5 flex flex-col justify-between shadow-lg">
-                    <div>
-                        <div class="flex items-center space-x-3 border-b border-slate-700/60 pb-3 mb-4">
-                            <div class="bg-blue-500/10 text-blue-400 p-2.5 rounded-xl border border-blue-500/20"><i class="fa-solid fa-user-shield"></i></div>
-                            <h3 class="font-bold text-white text-sm">Customer & Owner Details</h3>
-                        </div>
-                        <ul class="space-y-3 text-xs sm:text-sm">
-                            <li class="flex justify-between items-center"><span class="text-slate-400">Full Name:</span> <span id="cName" class="font-semibold text-white"></span></li>
-                            <li class="flex justify-between items-center"><span class="text-slate-400">Father's Name:</span> <span id="cFather" class="font-semibold text-white"></span></li>
-                            <li class="flex justify-between items-center"><span class="text-slate-400">Customer Type:</span> <span id="cType" class="font-semibold text-white uppercase"></span></li>
-                            <li class="flex justify-between items-center"><span class="text-slate-400">Owner Serial:</span> <span id="cCount" class="font-semibold text-white"></span></li>
-                            <li class="flex justify-between items-center"><span class="text-slate-400">Nominee Name:</span> <span id="cNominee" class="font-semibold text-white"></span></li>
-                        </ul>
-                    </div>
-                    <div class="mt-4 pt-3 border-t border-slate-700/60 text-[11px] text-slate-500 flex items-center justify-between">
-                        <span>Verification Profile</span>
-                        <i class="fa-solid fa-circle-check text-emerald-400"></i>
-                    </div>
+            <!-- Error State -->
+            <div id="errorState" class="hidden bg-red-500/10 border border-red-500/30 rounded-2xl p-6 text-center space-y-3">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-500/20 text-red-400 mb-1">
+                    <i class="fa-solid fa-triangle-exclamation text-xl"></i>
                 </div>
-
-                <!-- Card 2: Vehicle Core Specifications -->
-                <div class="bg-slate-800/60 backdrop-blur border border-slate-700/60 rounded-2xl p-5 flex flex-col justify-between shadow-lg">
-                    <div>
-                        <div class="flex items-center space-x-3 border-b border-slate-700/60 pb-3 mb-4">
-                            <div class="bg-indigo-500/10 text-indigo-400 p-2.5 rounded-xl border border-indigo-500/20"><i class="fa-solid fa-gauge-high"></i></div>
-                            <h3 class="font-bold text-white text-sm">Vehicle Specifications</h3>
-                        </div>
-                        <ul class="space-y-3 text-xs sm:text-sm">
-                            <li class="flex justify-between items-center"><span class="text-slate-400">Body Type:</span> <span id="vBody" class="font-semibold text-white"></span></li>
-                            <li class="flex justify-between items-center"><span class="text-slate-400">Cubic Capacity:</span> <span id="vCC" class="font-semibold text-white"></span></li>
-                            <li class="flex justify-between items-center"><span class="text-slate-400">Emission Norms:</span> <span id="vNorms" class="font-semibold text-white"></span></li>
-                            <li class="flex justify-between items-center"><span class="text-slate-400">Vehicle Color:</span> <span id="vColor" class="font-semibold text-white"></span></li>
-                            <li class="flex justify-between items-center"><span class="text-slate-400">Cylinders No:</span> <span id="vCyl" class="font-semibold text-white">1</span></li>
-                        </ul>
-                    </div>
-                    <div class="mt-4 pt-3 border-t border-slate-700/60 text-[11px] text-slate-500 flex items-center justify-between">
-                        <span>Technical Parameter</span>
-                        <i class="fa-solid fa-sliders text-indigo-400"></i>
-                    </div>
-                </div>
-
-                <!-- Card 3: Identification Numbers -->
-                <div class="bg-slate-800/60 backdrop-blur border border-slate-700/60 rounded-2xl p-5 flex flex-col justify-between shadow-lg">
-                    <div>
-                        <div class="flex items-center space-x-3 border-b border-slate-700/60 pb-3 mb-4">
-                            <div class="bg-emerald-500/10 text-emerald-400 p-2.5 rounded-xl border border-emerald-500/20"><i class="fa-solid fa-barcode"></i></div>
-                            <h3 class="font-bold text-white text-sm">Unique Identification</h3>
-                        </div>
-                        <ul class="space-y-3 text-xs sm:text-sm">
-                            <li class="flex flex-col space-y-1">
-                                <span class="text-slate-400 text-[11px]">Chassis Number:</span> 
-                                <span id="vChassis" class="font-mono font-medium text-blue-300 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-700 text-xs tracking-wider break-all"></span>
-                            </li>
-                            <li class="flex flex-col space-y-1">
-                                <span class="text-slate-400 text-[11px]">Engine Number:</span> 
-                                <span id="vEngine" class="font-mono font-medium text-blue-300 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-700 text-xs tracking-wider break-all"></span>
-                            </li>
-                            <li class="flex justify-between items-center pt-1"><span class="text-slate-400">RC Expiry Date:</span> <span id="vRcExp" class="font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 text-xs"></span></li>
-                        </ul>
-                    </div>
-                    <div class="mt-4 pt-3 border-t border-slate-700/60 text-[11px] text-slate-500 flex items-center justify-between">
-                        <span>Secure Unit Code</span>
-                        <i class="fa-solid fa-lock text-emerald-400"></i>
-                    </div>
-                </div>
-
-                <!-- Card 4: Insurance & PUC Details (Active Date Color Highlighted) -->
-                <div class="bg-slate-800/60 backdrop-blur border border-slate-700/60 rounded-2xl p-5 flex flex-col justify-between shadow-lg">
-                    <div>
-                        <div class="flex items-center space-x-3 border-b border-slate-700/60 pb-3 mb-4">
-                            <div class="bg-amber-500/10 text-amber-400 p-2.5 rounded-xl border border-amber-500/20"><i class="fa-solid fa-file-shield"></i></div>
-                            <h3 class="font-bold text-white text-sm">Insurance & Pollution</h3>
-                        </div>
-                        <ul class="space-y-3 text-xs sm:text-sm">
-                            <li class="flex flex-col space-y-0.5"><span class="text-slate-400 text-[11px]">Insurance Provider:</span> <span id="insCompany" class="font-semibold text-white truncate"></span></li>
-                            <li class="flex justify-between items-center"><span class="text-slate-400">Policy Number:</span> <span id="insPolicy" class="font-mono font-medium text-slate-300 text-xs"></span></li>
-                            <!-- Active Green Date Highlight -->
-                            <li class="flex justify-between items-center"><span class="text-slate-400">Insurance Upto:</span> <span id="insUpto" class="font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-md border border-emerald-500/30 text-xs flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-[10px]"></i> <span id="insUptoText"></span></span></li>
-                            <li class="flex justify-between items-center"><span class="text-slate-400">PUC Valid Upto:</span> <span id="pucUpto" class="font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-md border border-emerald-500/30 text-xs"></span></li>
-                        </ul>
-                    </div>
-                    <div class="mt-4 pt-3 border-t border-slate-700/60 text-[11px] text-slate-500 flex items-center justify-between">
-                        <span>Compliance Status</span>
-                        <i class="fa-solid fa-shield-check text-amber-400"></i>
-                    </div>
-                </div>
-
-                <!-- Card 5: RTO & Financing Details -->
-                <div class="bg-slate-800/60 backdrop-blur border border-slate-700/60 rounded-2xl p-5 flex flex-col justify-between shadow-lg">
-                    <div>
-                        <div class="flex items-center space-x-3 border-b border-slate-700/60 pb-3 mb-4">
-                            <div class="bg-purple-500/10 text-purple-400 p-2.5 rounded-xl border border-purple-500/20"><i class="fa-solid fa-landmark"></i></div>
-                            <h3 class="font-bold text-white text-sm">RTO & Hypothecation</h3>
-                        </div>
-                        <ul class="space-y-3 text-xs sm:text-sm">
-                            <li class="flex justify-between items-center"><span class="text-slate-400">Reg. Authority:</span> <span id="rtoAuth" class="font-semibold text-white"></span></li>
-                            <li class="flex justify-between items-center"><span class="text-slate-400">RTO Code:</span> <span id="rtoCode" class="font-semibold text-white"></span></li>
-                            <li class="flex justify-between items-center"><span class="text-slate-400">Financed Status:</span> <span id="finStatus" class="font-semibold text-white"></span></li>
-                            <li class="flex flex-col space-y-0.5"><span class="text-slate-400 text-[11px]">Financer Name:</span> <span id="finName" class="font-semibold text-slate-200 text-xs"></span></li>
-                        </ul>
-                    </div>
-                    <div class="mt-4 pt-3 border-t border-slate-700/60 text-[11px] text-slate-500 flex items-center justify-between">
-                        <span>RTO Registry Record</span>
-                        <i class="fa-solid fa-building-columns text-purple-400"></i>
-                    </div>
-                </div>
-
-                <!-- Card 6: Registered Address Details -->
-                <div class="bg-slate-800/60 backdrop-blur border border-slate-700/60 rounded-2xl p-5 flex flex-col justify-between shadow-lg">
-                    <div>
-                        <div class="flex items-center space-x-3 border-b border-slate-700/60 pb-3 mb-4">
-                            <div class="bg-rose-500/10 text-rose-400 p-2.5 rounded-xl border border-rose-500/20"><i class="fa-solid fa-location-dot"></i></div>
-                            <h3 class="font-bold text-white text-sm">Registered Address</h3>
-                        </div>
-                        <p id="resAddress" class="text-xs sm:text-sm text-slate-300 leading-relaxed bg-slate-900/60 p-3.5 rounded-xl border border-slate-700/60 min-h-[90px] flex items-center">-</p>
-                    </div>
-                    <div class="mt-4 pt-3 border-t border-slate-700/60 text-[11px] text-slate-500 flex items-center justify-between">
-                        <span>Communication Location</span>
-                        <i class="fa-solid fa-map-pin text-rose-400"></i>
-                    </div>
-                </div>
-
+                <h3 id="errorTitle" class="text-lg font-bold text-red-400">Failed to load data</h3>
+                <p id="errorMessage" class="text-slate-300 text-sm max-w-md mx-auto">Please check the vehicle number and try again.</p>
             </div>
+        </div>
 
+        <!-- Dashboard Content (Rendered dynamically) -->
+        <div id="vehicleDashboard" class="space-y-6">
+            <!-- Default Empty State -->
+            <div id="emptyState" class="bg-slate-800/30 border border-slate-700/40 rounded-2xl p-12 text-center space-y-3">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-800 text-slate-500 mb-2">
+                    <i class="fa-solid fa-magnifying-glass-location text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-slate-300">No Vehicle Selected</h3>
+                <p class="text-slate-500 text-sm max-w-md mx-auto">Enter a valid RC number in the search bar above to view detailed registration information.</p>
+            </div>
         </div>
 
     </main>
 
     <!-- Footer -->
-    <footer class="bg-slate-950 text-slate-400 py-5 text-center text-xs mt-12 border-t border-slate-800 tracking-wider font-semibold">
-        <p>ALL RESERV RIGHT VIKAS MISHRA 2026</p>
+    <footer class="bg-slate-950 border-t border-slate-800 py-6 mt-auto no-print">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 space-y-1">
+            <p>© 2026 VahanDetails Portal. All data is synchronized from public database records.</p>
+            <p>Single Page Dashboard • Fast & Secure</p>
+        </div>
     </footer>
 
-    <!-- JavaScript Logic -->
+    <!-- JavaScript Application Logic -->
     <script>
-        const sampleData = [{
-            "chassis_number": "MBLHA10CGGHHB0460",
-            "customer_details": {
-                "communication_address": {
-                    "address_line": "WZ-57,BUDHELA VILLAGE,VIKAS PURI,NEW DELHI,DELHI"
-                },
-                "full_name": "SANDIL RAJ"
-            },
-            "customer_type": "individual",
-            "engine_number": "HA10ERGHH93561",
-            "is_two_wheeler": true,
-            "meta_data": {
-                "signzy_response": {
-                    "result": {
-                        "bodyType": "SOLO WITH PILLION",
-                        "chassis": "MBLHA10CGGHHB0460",
-                        "engine": "HA10ERGHH93561",
-                        "model": "SPLENDOR +",
-                        "normsType": "BHARAT STAGE III",
-                        "owner": "SANDIL RAJ",
-                        "ownerCount": "1",
-                        "ownerFatherName": "P MUKHAN",
-                        "permanentAddress": "WZ-57,BUDHELA VILLAGE,VIKAS PURI,NEW DELHI,DELHI",
-                        "puccNumber": "DL01000100027695",
-                        "puccUpto": "05/11/2026",
-                        "rcExpiryDate": "01/09/2031",
-                        "rcFinancer": "HOME CREDIT INDIA FINANCE PVT. LTD.",
-                        "regAuthority": "JANAKPURI",
-                        "regDate": "28/08/2016",
-                        "regNo": "DL4SDH5925",
-                        "rtoCode": "DL04",
-                        "status": "ACTIVE",
-                        "type": "PETROL",
-                        "vehicleCubicCapacity": "97",
-                        "vehicleInsuranceCompanyName": "GODIGIT GENERAL INSURANCE LTD.",
-                        "vehicleInsurancePolicyNumber": "D149138952",
-                        "vehicleInsuranceUpto": "27/05/2026",
-                        "vehicleManufacturerName": "HERO MOTOCORP LTD",
-                        "vehicleNumber": "DL4SDH5925"
-                    }
-                }
-            },
-            "nominee_details": {
-                "name": "P MUKHAN"
-            },
-            "registration_number": "DL-4S-DH-5925",
-            "vehicle_details": {
-                "is_vehicle_financed": true,
-                "registration_date": "28/08/2016",
-                "vehicle_color": "GBK"
-            }
-        }];
-
-        function loadDefaultData() {
-            document.getElementById('regInput').value = "DL4SDH5925";
-            displayData(sampleData[0]);
+        // Form submit handler
+        function handleSearch(event) {
+            event.preventDefault();
+            const input = document.getElementById('vehicleInput').value.trim();
+            if (!input) return;
+            fetchVehicleData(input);
         }
 
-        async function fetchVehicleData() {
-            const regNo = document.getElementById('regInput').value.trim();
-            if(!regNo) {
-                showError("Please enter a valid vehicle registration number.");
-                return;
-            }
+        // Fetch Data from API
+        async function fetchVehicleData(vehicleNum) {
+            const statusContainer = document.getElementById('statusContainer');
+            const loadingState = document.getElementById('loadingState');
+            const errorState = document.getElementById('errorState');
+            const dashboard = document.getElementById('vehicleDashboard');
 
-            showLoader();
+            // Reset Views
+            dashboard.innerHTML = '';
+            statusContainer.classList.remove('hidden');
+            loadingState.classList.remove('hidden');
+            errorState.classList.add('hidden');
 
-            const apiUrl = `https://unsalubriously-unfragrant-rosetta.ngrok-free.dev/api/vehicle-details-only?regn_no=${encodeURIComponent(regNo)}`;
+            const apiUrl = `https://randkikichut.vercel.app/?vehicle_number=${encodeURIComponent(vehicleNum)}`;
 
             try {
-                const response = await fetch(apiUrl, {
-                    headers: { 'ngrok-skip-browser-warning': 'true' }
-                });
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP Error Status: ${response.status}`);
+                }
                 
-                if (!response.ok) throw new Error(`Server returned status ${response.status}`);
+                const responseData = await response.json();
+                loadingState.classList.add('hidden');
 
-                const data = await response.json();
-                const vehicleRecord = Array.isArray(data) ? data[0] : data;
-
-                if (!vehicleRecord) throw new Error("No vehicle details found.");
-                displayData(vehicleRecord);
+                // Validate API response format
+                if (Array.isArray(responseData) && responseData.length > 0) {
+                    const record = responseData[0];
+                    if (record.status === 'success' && record.data) {
+                        statusContainer.classList.add('hidden');
+                        renderVehicleDetails(record.data);
+                    } else {
+                        showError('No Record Found', 'The requested vehicle details could not be found in the database.');
+                    }
+                } else if (responseData && responseData.data) {
+                    statusContainer.classList.add('hidden');
+                    renderVehicleDetails(responseData.data);
+                } else {
+                    showError('Invalid Data Format', 'Received an unexpected response structure from the API server.');
+                }
 
             } catch (err) {
-                console.warn("API fallback to sample data:", err);
-                setTimeout(() => { displayData(sampleData[0]); }, 500);
+                loadingState.classList.add('hidden');
+                showError('Connection Error', 'Unable to connect to the vehicle registry API. Please verify network or API URL.');
+                console.error("API Fetch Error:", err);
             }
         }
 
-        function showLoader() {
-            document.getElementById('welcomeState').classList.add('hidden');
-            document.getElementById('errorMessage').classList.add('hidden');
-            document.getElementById('resultContainer').classList.add('hidden');
-            document.getElementById('loader').classList.remove('hidden');
+        // Helper Error Display
+        function showError(title, msg) {
+            const statusContainer = document.getElementById('statusContainer');
+            const errorState = document.getElementById('errorState');
+            document.getElementById('errorTitle').innerText = title;
+            document.getElementById('errorMessage').innerText = msg;
+            statusContainer.classList.remove('hidden');
+            errorState.classList.remove('hidden');
         }
 
-        function showError(msg) {
-            document.getElementById('loader').classList.add('hidden');
-            document.getElementById('welcomeState').classList.add('hidden');
-            document.getElementById('resultContainer').classList.add('hidden');
-            document.getElementById('errorText').innerText = msg;
-            document.getElementById('errorMessage').classList.remove('hidden');
-        }
-
-        // Helper to get company branding logo icon based on manufacturer name
-        function getCompanyIconAndColor(makerName) {
-            const name = (makerName || "").toLowerCase();
-            if(name.includes('hero')) return { icon: 'fa-motorcycle', bg: 'bg-red-500/20 text-red-400 border-red-500/30' };
-            if(name.includes('honda')) return { icon: 'fa-motorcycle', bg: 'bg-red-600/20 text-red-500 border-red-600/30' };
-            if(name.includes('bajaj')) return { icon: 'fa-motorcycle', bg: 'bg-blue-500/20 text-blue-400 border-blue-500/30' };
-            if(name.includes('tvs')) return { icon: 'fa-motorcycle', bg: 'bg-amber-500/20 text-amber-400 border-amber-500/30' };
-            if(name.includes('yamaha')) return { icon: 'fa-motorcycle', bg: 'bg-sky-500/20 text-sky-400 border-sky-500/30' };
-            if(name.includes('tata')) return { icon: 'fa-truck-front', bg: 'bg-blue-600/20 text-blue-400 border-blue-600/30' };
-            if(name.includes('mahindra')) return { icon: 'fa-car', bg: 'bg-red-500/20 text-red-400 border-red-500/30' };
-            return { icon: 'fa-car-side', bg: 'bg-blue-500/20 text-blue-400 border-blue-500/30' };
-        }
-
-        function displayData(item) {
-            document.getElementById('loader').classList.add('hidden');
-            document.getElementById('welcomeState').classList.add('hidden');
-            document.getElementById('errorMessage').classList.add('hidden');
-            document.getElementById('resultContainer').classList.remove('hidden');
-
-            const signzy = item.meta_data?.signzy_response?.result || {};
-
-            // Header fields
-            const regNo = signzy.regNo || item.registration_number || "-";
-            const maker = signzy.vehicleManufacturerName || "HERO MOTOCORP LTD";
-            const model = signzy.model || "SPLENDOR +";
-            
-            document.getElementById('resRegNo').innerText = regNo;
-            document.getElementById('resModel').innerText = model;
-            document.getElementById('resMaker').innerText = maker;
-            document.getElementById('resOwner').innerText = signzy.owner || item.customer_details?.full_name || "-";
-            document.getElementById('resRegDate').innerText = signzy.regDate || item.vehicle_details?.registration_date || "-";
-            document.getElementById('resFuel').innerText = signzy.type || "PETROL";
-            
-            // Dynamic Maker Logo configuration
-            const brandStyle = getCompanyIconAndColor(maker);
-            const logoContainer = document.getElementById('makerLogoContainer');
-            logoContainer.className = `w-10 h-10 rounded-xl border flex items-center justify-center text-lg shadow-sm ${brandStyle.bg}`;
-            logoContainer.innerHTML = `<i class="fa-solid ${brandStyle.icon}"></i>`;
-            document.getElementById('bgWatermarkIcon').className = `fa-solid ${brandStyle.icon}`;
-
-            // Vehicle Status Highlight
-            const statusEl = document.getElementById('badgeStatus');
-            const statusVal = (signzy.status || "ACTIVE").toUpperCase();
-            if(statusVal === 'ACTIVE') {
-                statusEl.className = "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-bold flex items-center gap-1.5";
-                statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> ${statusVal}`;
-            } else {
-                statusEl.className = "bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-bold flex items-center gap-1.5";
-                statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span> ${statusVal}`;
+        // Safe Value Getter for Null/Undefined Checking
+        function safeVal(val, fallback = 'N/A') {
+            if (val === null || val === undefined || val === '' || val === 'null') {
+                return fallback;
             }
-
-            // Card 1: Customer Details
-            document.getElementById('cName').innerText = item.customer_details?.full_name || signzy.owner || "-";
-            document.getElementById('cFather').innerText = signzy.ownerFatherName || "-";
-            document.getElementById('cType').innerText = item.customer_type || "Individual";
-            document.getElementById('cCount').innerText = signzy.ownerCount || "1st";
-            document.getElementById('cNominee').innerText = item.nominee_details?.name || "-";
-
-            // Card 2: Vehicle Specifications
-            document.getElementById('vBody').innerText = signzy.bodyType || "SOLO WITH PILLION";
-            document.getElementById('vCC').innerText = (signzy.vehicleCubicCapacity || "97") + " CC";
-            document.getElementById('vNorms').innerText = signzy.normsType || "-";
-            document.getElementById('vColor').innerText = signzy.vehicleColour || item.vehicle_details?.vehicle_color || "-";
-
-            // Card 3: Identification Numbers
-            document.getElementById('vChassis').innerText = item.chassis_number || signzy.chassis || "-";
-            document.getElementById('vEngine').innerText = item.engine_number || signzy.engine || "-";
-            document.getElementById('vRcExp').innerText = signzy.rcExpiryDate || "-";
-
-            // Card 4: Insurance & PUC Active Highlights (Green Colors)
-            document.getElementById('insCompany').innerText = signzy.vehicleInsuranceCompanyName || "-";
-            document.getElementById('insPolicy').innerText = signzy.vehicleInsurancePolicyNumber || "-";
-            
-            const insUptoVal = signzy.vehicleInsuranceUpto || "-";
-            document.getElementById('insUptoText').innerText = insUptoVal;
-
-            const pucUptoVal = signzy.puccUpto || "-";
-            document.getElementById('pucUpto').innerText = pucUptoVal;
-
-            // Card 5: RTO & Finance
-            document.getElementById('rtoAuth').innerText = signzy.regAuthority || "-";
-            document.getElementById('rtoCode').innerText = signzy.rtoCode || "-";
-            document.getElementById('finStatus').innerText = item.vehicle_details?.is_vehicle_financed ? "Yes (Financed)" : "No";
-            document.getElementById('finName').innerText = signzy.rcFinancer || "None";
-
-            // Card 6: Address
-            document.getElementById('resAddress').innerText = signzy.permanentAddress || item.customer_details?.communication_address?.address_line || "-";
+            return val;
         }
+
+        // Format Date String safely
+        function formatDate(dateStr) {
+            if (!dateStr || dateStr === 'N/A') return 'N/A';
+            try {
+                const d = new Date(dateStr);
+                if (isNaN(d.getTime())) return dateStr;
+                return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+            } catch {
+                return dateStr;
+            }
+        }
+
+        // Main UI Render Function
+        function renderVehicleDetails(data) {
+            const dashboard = document.getElementById('vehicleDashboard');
+
+            // Extract nested properties safely
+            const makeData = data.makeData || {};
+            const modelData = data.modelData || {};
+            const rcStatus = safeVal(data.rc_status, 'UNKNOWN').toUpperCase();
+            
+            // Badge styles based on status
+            const isRcActive = rcStatus === 'ACTIVE';
+            const statusBadgeClass = isRcActive 
+                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' 
+                : 'bg-amber-500/10 text-amber-400 border-amber-500/30';
+
+            const brandLogo = makeData.v_make_logo_url || '';
+            const makeDisplayName = safeVal(makeData.v_make_display_name, safeVal(data.maker_description, 'Vehicle Make'));
+            const modelDisplayName = safeVal(modelData.v_model_display_name, safeVal(data.maker_model, 'Model Name'));
+
+            dashboard.innerHTML = `
+                <!-- Main Header Hero Card -->
+                <div class="bg-gradient-to-r from-slate-800 to-slate-800/90 border border-slate-700/80 rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden print-border">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+                        
+                        <div class="flex items-center space-x-5">
+                            ${brandLogo ? `
+                                <div class="bg-white p-3 rounded-2xl h-20 w-20 flex items-center justify-center shadow-lg border border-slate-200 shrink-0">
+                                    <img src="${brandLogo}" alt="${makeDisplayName}" class="max-h-14 max-w-14 object-contain" onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/744/744465.png';"/>
+                                </div>
+                            ` : `
+                                <div class="bg-blue-600/20 text-blue-400 p-4 rounded-2xl border border-blue-500/30 text-3xl shrink-0">
+                                    <i class="fa-solid fa-motorcycle"></i>
+                                </div>
+                            `}
+                            
+                            <div>
+                                <div class="flex flex-wrap items-center gap-2 mb-1">
+                                    <span class="text-2xl sm:text-3xl font-extrabold text-white tracking-wide uppercase">${safeVal(data.rc_number)}</span>
+                                    <span class="px-3 py-1 rounded-full text-xs font-bold border ${statusBadgeClass}">
+                                        <i class="fa-solid fa-circle text-[8px] mr-1.5 align-middle"></i>${rcStatus}
+                                    </span>
+                                </div>
+                                <h3 class="text-lg font-semibold text-slate-300">${modelDisplayName}</h3>
+                                <p class="text-sm text-slate-400 mt-0.5"><i class="fa-solid fa-industry text-xs mr-1"></i> ${safeVal(data.maker_description)}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap md:flex-col items-start md:items-end gap-2 border-t md:border-t-0 border-slate-700/80 pt-4 md:pt-0">
+                            <div class="text-left md:text-right">
+                                <span class="text-xs text-slate-400 uppercase tracking-wider block font-medium">Category</span>
+                                <span class="text-sm font-semibold text-white">${safeVal(data.vehicle_category_description, safeVal(data.vehicle_category))}</span>
+                            </div>
+                            <div class="text-left md:text-right mt-1">
+                                <span class="text-xs text-slate-400 uppercase tracking-wider block font-medium">Norms</span>
+                                <span class="inline-block px-2.5 py-0.5 bg-slate-700/60 rounded text-xs text-slate-200 border border-slate-600/50">${safeVal(data.norms_type)}</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Quick Stats Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 flex items-center space-x-3.5 print-border">
+                        <div class="p-3 bg-amber-500/10 text-amber-400 rounded-lg"><i class="fa-solid fa-gas-pump text-xl"></i></div>
+                        <div>
+                            <p class="text-xs text-slate-400">Fuel Type</p>
+                            <p class="text-base font-bold text-white">${safeVal(data.fuel_type)}</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 flex items-center space-x-3.5 print-border">
+                        <div class="p-3 bg-blue-500/10 text-blue-400 rounded-lg"><i class="fa-solid fa-calendar-check text-xl"></i></div>
+                        <div>
+                            <p class="text-xs text-slate-400">Registration Date</p>
+                            <p class="text-base font-bold text-white">${formatDate(data.registration_date)}</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 flex items-center space-x-3.5 print-border">
+                        <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-lg"><i class="fa-solid fa-shield-halved text-xl"></i></div>
+                        <div>
+                            <p class="text-xs text-slate-400">Fitness Up To</p>
+                            <p class="text-base font-bold text-white">${formatDate(data.fit_up_to)}</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 flex items-center space-x-3.5 print-border">
+                        <div class="p-3 bg-purple-500/10 text-purple-400 rounded-lg"><i class="fa-solid fa-user-check text-xl"></i></div>
+                        <div>
+                            <p class="text-xs text-slate-400">Owner Shifted</p>
+                            <p class="text-base font-bold text-white">${safeVal(data.owner_number)} Owner(s)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Info Cards Layout -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    
+                    <!-- Card 1: Owner & RTO Info -->
+                    <div class="bg-slate-800/50 border border-slate-700/70 rounded-2xl p-6 space-y-4 print-border">
+                        <div class="flex items-center space-x-2 border-b border-slate-700/70 pb-3">
+                            <i class="fa-solid fa-user-gear text-blue-400 text-lg"></i>
+                            <h4 class="font-bold text-white text-base">Owner & RTO Details</h4>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-3.5 gap-x-4 text-sm">
+                            <div>
+                                <span class="text-slate-400 text-xs block">Owner Name</span>
+                                <span class="font-semibold text-slate-100">${safeVal(data.owner_name)}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 text-xs block">Father's Name</span>
+                                <span class="font-semibold text-slate-100">${safeVal(data.father_name)}</span>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <span class="text-slate-400 text-xs block">Registered RTO</span>
+                                <span class="font-semibold text-slate-100">${safeVal(data.registered_at)}</span>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <span class="text-slate-400 text-xs block">Present / Permanent Address</span>
+                                <span class="font-semibold text-slate-100">${safeVal(data.present_address, safeVal(data.permanent_address))}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Insurance & Compliance -->
+                    <div class="bg-slate-800/50 border border-slate-700/70 rounded-2xl p-6 space-y-4 print-border">
+                        <div class="flex items-center space-x-2 border-b border-slate-700/70 pb-3">
+                            <i class="fa-solid fa-file-contract text-emerald-400 text-lg"></i>
+                            <h4 class="font-bold text-white text-base">Insurance & Compliance</h4>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-3.5 gap-x-4 text-sm">
+                            <div class="sm:col-span-2">
+                                <span class="text-slate-400 text-xs block">Insurance Company</span>
+                                <span class="font-semibold text-slate-100">${safeVal(data.insurance_company)}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 text-xs block">Policy Number</span>
+                                <span class="font-semibold text-slate-100 break-all">${safeVal(data.insurance_policy_number)}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 text-xs block">Insurance Valid Upto</span>
+                                <span class="font-semibold text-slate-100">${formatDate(data.insurance_upto)}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 text-xs block">PUCC Number</span>
+                                <span class="font-semibold text-slate-100">${safeVal(data.pucc_number)}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 text-xs block">PUCC Valid Upto</span>
+                                <span class="font-semibold text-slate-100">${formatDate(data.pucc_upto)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Vehicle Specs & Identification -->
+                    <div class="bg-slate-800/50 border border-slate-700/70 rounded-2xl p-6 space-y-4 print-border">
+                        <div class="flex items-center space-x-2 border-b border-slate-700/70 pb-3">
+                            <i class="fa-solid fa-microchip text-purple-400 text-lg"></i>
+                            <h4 class="font-bold text-white text-base">Vehicle Specifications</h4>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-3.5 gap-x-4 text-sm">
+                            <div>
+                                <span class="text-slate-400 text-xs block">Chassis Number</span>
+                                <span class="font-semibold text-slate-100 font-mono text-xs tracking-wider">${safeVal(data.vehicle_chasi_number)}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 text-xs block">Engine Number</span>
+                                <span class="font-semibold text-slate-100 font-mono text-xs tracking-wider">${safeVal(data.vehicle_engine_number)}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 text-xs block">Cubic Capacity (CC)</span>
+                                <span class="font-semibold text-slate-100">${safeVal(data.cubic_capacity)} cc</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 text-xs block">Cylinders</span>
+                                <span class="font-semibold text-slate-100">${safeVal(data.no_cylinders)}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 text-xs block">Manufacturing Date</span>
+                                <span class="font-semibold text-slate-100">${safeVal(data.manufacturing_date)}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 text-xs block">Body Type / Seating</span>
+                                <span class="font-semibold text-slate-100">${safeVal(data.body_type)} (${safeVal(data.seat_capacity)} Seats)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Tax & Finance Status -->
+                    <div class="bg-slate-800/50 border border-slate-700/70 rounded-2xl p-6 space-y-4 print-border">
+                        <div class="flex items-center space-x-2 border-b border-slate-700/70 pb-3">
+                            <i class="fa-solid fa-receipt text-amber-400 text-lg"></i>
+                            <h4 class="font-bold text-white text-base">Tax & Financier Information</h4>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-3.5 gap-x-4 text-sm">
+                            <div>
+                                <span class="text-slate-400 text-xs block">Tax Paid Upto</span>
+                                <span class="font-semibold text-slate-100">${formatDate(data.tax_paid_upto)}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 text-xs block">Financed Status</span>
+                                <span class="font-semibold text-slate-100">${data.financed ? 'Yes' : 'No'}</span>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <span class="text-slate-400 text-xs block">Financer Name</span>
+                                <span class="font-semibold text-slate-100">${safeVal(data.financer, 'N/A (Unfinanced)')}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 text-xs block">Unladen / Gross Weight</span>
+                                <span class="font-semibold text-slate-100">${safeVal(data.unladen_weight)} kg / ${safeVal(data.vehicle_gross_weight)} kg</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 text-xs block">Blacklist Status</span>
+                                <span class="font-semibold text-slate-100">${safeVal(data.blacklist_status, 'Clean Record')}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Toggle Raw JSON Section (Bonus Feature) -->
+                <div class="bg-slate-800/30 border border-slate-700/50 rounded-2xl p-4 no-print">
+                    <button onclick="toggleJsonView()" class="flex items-center justify-between w-full text-slate-400 hover:text-white transition-colors text-sm font-medium">
+                        <span><i class="fa-solid fa-code text-xs mr-2"></i>View Raw API Response (JSON)</span>
+                        <i id="jsonChevron" class="fa-solid fa-chevron-down text-xs transition-transform duration-200"></i>
+                    </button>
+                    <div id="jsonViewContainer" class="hidden mt-4">
+                        <pre class="bg-slate-950 p-4 rounded-xl text-xs font-mono text-emerald-400 overflow-x-auto border border-slate-800 max-h-96">${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Toggle JSON View Visibility
+        function toggleJsonView() {
+            const container = document.getElementById('jsonViewContainer');
+            const chevron = document.getElementById('jsonChevron');
+            container.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-180');
+        }
+
+        // Default Load Example Data on startup if required
+        window.addEventListener('DOMContentLoaded', () => {
+            // Optional: Auto-fetch example vehicle UP32FT8571 on first page load
+            document.getElementById('vehicleInput').value = 'UP32FT8571';
+            fetchVehicleData('UP32FT8571');
+        });
     </script>
 </body>
 </html>
