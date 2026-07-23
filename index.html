@@ -108,7 +108,6 @@
                                 type="text" 
                                 id="vehicleInput" 
                                 placeholder="e.g. UP32FT8571" 
-                                uppercase
                                 required
                                 class="w-full pl-11 pr-4 py-3.5 bg-slate-900/90 border border-slate-700 rounded-xl text-white placeholder-slate-500 font-semibold tracking-wider focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all uppercase"
                             />
@@ -200,25 +199,28 @@
                 const responseData = await response.json();
                 loadingState.classList.add('hidden');
 
-                // Validate API response format
+                // Normalize both Object `{status, data}` & Array `[{status, data}]` responses
+                let targetRecord = null;
+
                 if (Array.isArray(responseData) && responseData.length > 0) {
-                    const record = responseData[0];
-                    if (record.status === 'success' && record.data) {
-                        statusContainer.classList.add('hidden');
-                        renderVehicleDetails(record.data);
-                    } else {
-                        showError('No Record Found', 'The requested vehicle details could not be found in the database.');
-                    }
-                } else if (responseData && responseData.data) {
+                    targetRecord = responseData[0];
+                } else if (responseData && typeof responseData === 'object') {
+                    targetRecord = responseData;
+                }
+
+                if (targetRecord && targetRecord.status === 'success' && targetRecord.data) {
                     statusContainer.classList.add('hidden');
-                    renderVehicleDetails(responseData.data);
+                    renderVehicleDetails(targetRecord.data);
+                } else if (targetRecord && targetRecord.data) {
+                    statusContainer.classList.add('hidden');
+                    renderVehicleDetails(targetRecord.data);
                 } else {
-                    showError('Invalid Data Format', 'Received an unexpected response structure from the API server.');
+                    showError('No Record Found', 'The requested vehicle details could not be found in the database.');
                 }
 
             } catch (err) {
                 loadingState.classList.add('hidden');
-                showError('Connection Error', 'Unable to connect to the vehicle registry API. Please verify network or API URL.');
+                showError('Connection Error', 'Unable to connect to the vehicle registry API or CORS issue occurred.');
                 console.error("API Fetch Error:", err);
             }
         }
@@ -233,7 +235,7 @@
             errorState.classList.remove('hidden');
         }
 
-        // Safe Value Getter for Null/Undefined Checking
+        // Safe Value Getter for Null/Undefined/Empty Checking
         function safeVal(val, fallback = 'N/A') {
             if (val === null || val === undefined || val === '' || val === 'null') {
                 return fallback;
@@ -280,7 +282,7 @@
                         <div class="flex items-center space-x-5">
                             ${brandLogo ? `
                                 <div class="bg-white p-3 rounded-2xl h-20 w-20 flex items-center justify-center shadow-lg border border-slate-200 shrink-0">
-                                    <img src="${brandLogo}" alt="${makeDisplayName}" class="max-h-14 max-w-14 object-contain" onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/744/744465.png';"/>
+                                    <img src="${brandLogo}" alt="${makeDisplayName}" class="max-h-14 max-w-14 object-contain" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-motorcycle text-3xl text-blue-400\'></i>';"/>
                                 </div>
                             ` : `
                                 <div class="bg-blue-600/20 text-blue-400 p-4 rounded-2xl border border-blue-500/30 text-3xl shrink-0">
@@ -343,7 +345,7 @@
                     <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 flex items-center space-x-3.5 print-border">
                         <div class="p-3 bg-purple-500/10 text-purple-400 rounded-lg"><i class="fa-solid fa-user-check text-xl"></i></div>
                         <div>
-                            <p class="text-xs text-slate-400">Owner Shifted</p>
+                            <p class="text-xs text-slate-400">Owner Count</p>
                             <p class="text-base font-bold text-white">${safeVal(data.owner_number)} Owner(s)</p>
                         </div>
                     </div>
@@ -474,7 +476,7 @@
 
                 </div>
 
-                <!-- Toggle Raw JSON Section (Bonus Feature) -->
+                <!-- Raw JSON View Accordion -->
                 <div class="bg-slate-800/30 border border-slate-700/50 rounded-2xl p-4 no-print">
                     <button onclick="toggleJsonView()" class="flex items-center justify-between w-full text-slate-400 hover:text-white transition-colors text-sm font-medium">
                         <span><i class="fa-solid fa-code text-xs mr-2"></i>View Raw API Response (JSON)</span>
@@ -495,9 +497,8 @@
             chevron.classList.toggle('rotate-180');
         }
 
-        // Default Load Example Data on startup if required
+        // Auto-fetch example vehicle UP32FT8571 on startup
         window.addEventListener('DOMContentLoaded', () => {
-            // Optional: Auto-fetch example vehicle UP32FT8571 on first page load
             document.getElementById('vehicleInput').value = 'UP32FT8571';
             fetchVehicleData('UP32FT8571');
         });
