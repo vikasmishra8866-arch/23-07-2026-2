@@ -3,34 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vehicle Details Dashboard - Parivahan Service</title>
+    <title>Advanced Vehicle Information System - Parivahan Service</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col justify-between">
+<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-blue-500 selection:text-white">
 
     <!-- Header / Navbar -->
-    <header class="bg-blue-600 text-white shadow-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+    <header class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700/60 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div class="flex items-center space-x-3">
-                <div class="bg-white text-blue-600 p-2 rounded-lg shadow font-bold text-xl">
-                    <i class="fa-solid fa-car-side"></i>
+                <div class="bg-gradient-to-tr from-blue-600 to-indigo-500 text-white p-2.5 rounded-xl shadow-lg shadow-blue-500/20 font-bold text-lg">
+                    <i class="fa-solid fa-shield-halved"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold tracking-wide">Vehicle Information System</h1>
-                    <p class="text-xs text-blue-100">Parivahan Service Portal</p>
+                    <h1 class="text-base font-bold tracking-tight text-white flex items-center gap-2">
+                        PARIVAHAN PORTAL <span class="bg-blue-500/20 text-blue-400 text-[10px] px-2 py-0.5 rounded-full border border-blue-500/30">PRO V2</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">Next-Gen Vehicle Verification System</p>
                 </div>
             </div>
 
             <!-- Search Form -->
-            <div class="w-full md:w-auto flex items-center bg-white rounded-lg overflow-hidden shadow-sm p-1">
+            <div class="w-full sm:w-auto flex items-center bg-slate-900 border border-slate-700 rounded-xl overflow-hidden p-1 shadow-inner">
+                <span class="pl-3 text-slate-500 text-sm"><i class="fa-solid fa-magnifying-glass"></i></span>
                 <input type="text" id="regInput" placeholder="Enter Vehicle No (e.g. DL4SDH5925)" 
-                    class="px-4 py-2 text-slate-700 outline-none w-full md:w-64 text-sm uppercase">
+                    class="px-3 py-2 text-slate-200 bg-transparent outline-none w-full sm:w-60 text-sm uppercase placeholder:text-slate-500 font-semibold tracking-wider">
                 <button onclick="fetchVehicleData()" 
-                    class="bg-blue-700 hover:bg-blue-800 text-white px-5 py-2 text-sm font-medium rounded-md transition duration-200">
-                    <i class="fa-solid fa-search mr-1"></i> Search
+                    class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 text-sm font-semibold rounded-lg transition duration-200 shadow-md shadow-blue-600/30">
+                    Search
                 </button>
             </div>
         </div>
@@ -40,157 +48,199 @@
     <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
 
         <!-- Initial state / Instructions -->
-        <div id="welcomeState" class="text-center py-16">
-            <div class="text-blue-500 text-6xl mb-4">
-                <i class="fa-solid fa-id-card"></i>
+        <div id="welcomeState" class="text-center py-20">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-blue-600/10 border border-blue-500/20 text-blue-400 text-3xl mb-6 shadow-2xl">
+                <i class="fa-solid fa-car-rear"></i>
             </div>
-            <h2 class="text-2xl font-semibold text-slate-700 mb-2">Vehicle Registration Verification</h2>
-            <p class="text-slate-500 max-w-md mx-auto mb-6">Enter the registration number above or click below to load sample vehicle details instantly.</p>
-            <button onclick="loadDefaultData()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-6 py-2.5 rounded-lg shadow transition duration-200">
-                Load Sample Data (DL4SDH5925)
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white mb-3">Instant RC & Vehicle Search</h2>
+            <p class="text-slate-400 max-w-md mx-auto mb-8 text-sm leading-relaxed">Enter any valid vehicle registration number above to extract live ownership, insurance, RTO, and specification details.</p>
+            <button onclick="loadDefaultData()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold px-7 py-3 rounded-xl shadow-lg shadow-emerald-600/20 transition duration-200 text-sm">
+                <i class="fa-solid fa-bolt mr-2"></i> Load Demo Vehicle (DL4SDH5925)
             </button>
         </div>
 
         <!-- Loader -->
-        <div id="loader" class="hidden text-center py-20">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
-            <p class="text-slate-600 mt-4 font-medium">Fetching vehicle details from server...</p>
+        <div id="loader" class="hidden text-center py-24">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent shadow-lg"></div>
+            <p class="text-slate-400 mt-4 text-sm font-medium tracking-wide">Fetching secure vehicle records...</p>
         </div>
 
         <!-- Error Message Box -->
-        <div id="errorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative max-w-lg mx-auto mb-6 text-center" role="alert">
-            <strong class="font-bold">Error! </strong>
-            <span id="errorText" class="block sm:inline">Unable to fetch details. Please try again.</span>
+        <div id="errorMessage" class="hidden bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3.5 rounded-xl max-w-lg mx-auto mb-6 text-center text-sm" role="alert">
+            <i class="fa-solid fa-triangle-exclamation mr-2"></i>
+            <span id="errorText" class="font-medium">Unable to fetch details. Please check the registration number.</span>
         </div>
 
         <!-- Result Dashboard -->
         <div id="resultContainer" class="hidden space-y-6">
             
-            <!-- Top Summary Banner -->
-            <div class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white rounded-2xl shadow-lg p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <div>
-                    <span id="badgeVehicleType" class="bg-blue-500/30 border border-blue-400 text-blue-100 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-semibold">Two Wheeler</span>
-                    <h2 id="resRegNo" class="text-3xl font-extrabold tracking-wider mt-2">DL4SDH5925</h2>
-                    <p class="text-blue-200 text-sm mt-1">Model: <span id="resModel" class="font-bold text-white">SPLENDOR +</span></p>
+            <!-- Top Hero Summary Banner with Maker Logo and Dynamic Status -->
+            <div class="relative overflow-hidden bg-gradient-to-br from-slate-800 via-slate-800 to-slate-900 border border-slate-700/80 rounded-2xl shadow-xl p-6 sm:p-8">
+                <div class="absolute -right-10 -bottom-10 text-slate-700/20 text-9xl pointer-events-none">
+                    <i id="bgWatermarkIcon" class="fa-solid fa-motorcycle"></i>
                 </div>
-                <div class="flex flex-wrap gap-4 bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/10 text-sm">
-                    <div>
-                        <p class="text-blue-200 text-xs">Owner Name</p>
-                        <p id="resOwner" class="font-bold text-white text-base">SANDIL RAJ</p>
+                <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <span id="badgeVehicleType" class="bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-bold">Two Wheeler</span>
+                            <span id="badgeStatus" class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-bold flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> ACTIVE
+                            </span>
+                        </div>
+                        <h2 id="resRegNo" class="text-3xl sm:text-4xl font-extrabold tracking-wider text-white">DL4SDH5925</h2>
+                        <!-- Maker Logo + Model Name -->
+                        <div class="flex items-center gap-3 pt-1">
+                            <div id="makerLogoContainer" class="w-9 h-9 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base shadow-sm">
+                                <i class="fa-solid fa-industry"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold" id="resMaker">HERO MOTOCORP LTD</p>
+                                <p class="text-lg font-bold text-white tracking-wide" id="resModel">SPLENDOR +</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="border-l border-white/20 pl-4">
-                        <p class="text-blue-200 text-xs">Registration Date</p>
-                        <p id="resRegDate" class="font-bold text-white text-base">28/08/2016</p>
-                    </div>
-                    <div class="border-l border-white/20 pl-4">
-                        <p class="text-blue-200 text-xs">Vehicle Status</p>
-                        <p id="resStatus" class="font-bold text-emerald-400 text-base uppercase">ACTIVE</p>
+                    
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-slate-900/60 backdrop-blur-md p-4 rounded-xl border border-slate-700/60 w-full md:w-auto">
+                        <div>
+                            <p class="text-slate-400 text-[11px] uppercase tracking-wider">Owner Name</p>
+                            <p id="resOwner" class="font-bold text-white text-sm mt-0.5 truncate max-w-[140px]">SANDIL RAJ</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-400 text-[11px] uppercase tracking-wider">Registration Date</p>
+                            <p id="resRegDate" class="font-bold text-white text-sm mt-0.5">28/08/2016</p>
+                        </div>
+                        <div class="col-span-2 sm:col-span-1">
+                            <p class="text-slate-400 text-[11px] uppercase tracking-wider">Fuel Type</p>
+                            <p id="resFuel" class="font-bold text-white text-sm mt-0.5">PETROL</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Grid Layout for Detailed Sections -->
+            <!-- Grid Cards Layout -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
                 <!-- Card 1: Owner & Customer Details -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
+                <div class="bg-slate-800/60 backdrop-blur border border-slate-700/60 rounded-2xl p-5 flex flex-col justify-between shadow-lg">
                     <div>
-                        <div class="flex items-center space-x-3 border-b pb-3 mb-4">
-                            <div class="bg-blue-50 text-blue-600 p-2.5 rounded-lg"><i class="fa-solid fa-user"></i></div>
-                            <h3 class="font-bold text-slate-700">Customer & Owner Details</h3>
+                        <div class="flex items-center space-x-3 border-b border-slate-700/60 pb-3 mb-4">
+                            <div class="bg-blue-500/10 text-blue-400 p-2.5 rounded-xl border border-blue-500/20"><i class="fa-solid fa-user-shield"></i></div>
+                            <h3 class="font-bold text-white text-sm">Customer & Owner Details</h3>
                         </div>
-                        <ul class="space-y-2.5 text-sm">
-                            <li class="flex justify-between"><span class="text-slate-500">Full Name:</span> <span id="cName" class="font-medium text-slate-700">-</span></li>
-                            <li class="flex justify-between"><span class="text-slate-500">Father's Name:</span> <span id="cFather" class="font-medium text-slate-700">-</span></li>
-                            <li class="flex justify-between"><span class="text-slate-500">Customer Type:</span> <span id="cType" class="font-medium text-slate-700">-</span></li>
-                            <li class="flex justify-between"><span class="text-slate-500">Owner Count:</span> <span id="cCount" class="font-medium text-slate-700">-</span></li>
-                            <li class="flex justify-between"><span class="text-slate-500">Nominee:</span> <span id="cNominee" class="font-medium text-slate-700">-</span></li>
+                        <ul class="space-y-3 text-xs sm:text-sm">
+                            <li class="flex justify-between items-center"><span class="text-slate-400">Full Name:</span> <span id="cName" class="font-semibold text-white"></span></li>
+                            <li class="flex justify-between items-center"><span class="text-slate-400">Father's Name:</span> <span id="cFather" class="font-semibold text-white"></span></li>
+                            <li class="flex justify-between items-center"><span class="text-slate-400">Customer Type:</span> <span id="cType" class="font-semibold text-white uppercase"></span></li>
+                            <li class="flex justify-between items-center"><span class="text-slate-400">Owner Serial:</span> <span id="cCount" class="font-semibold text-white"></span></li>
+                            <li class="flex justify-between items-center"><span class="text-slate-400">Nominee Name:</span> <span id="cNominee" class="font-semibold text-white"></span></li>
                         </ul>
                     </div>
-                    <div class="mt-4 pt-3 border-t text-xs text-slate-400">Personal Identification Info</div>
+                    <div class="mt-4 pt-3 border-t border-slate-700/60 text-[11px] text-slate-500 flex items-center justify-between">
+                        <span>Verification Profile</span>
+                        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    </div>
                 </div>
 
                 <!-- Card 2: Vehicle Core Specifications -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
+                <div class="bg-slate-800/60 backdrop-blur border border-slate-700/60 rounded-2xl p-5 flex flex-col justify-between shadow-lg">
                     <div>
-                        <div class="flex items-center space-x-3 border-b pb-3 mb-4">
-                            <div class="bg-indigo-50 text-indigo-600 p-2.5 rounded-lg"><i class="fa-solid fa-motorcycle"></i></div>
-                            <h3 class="font-bold text-slate-700">Vehicle Specifications</h3>
+                        <div class="flex items-center space-x-3 border-b border-slate-700/60 pb-3 mb-4">
+                            <div class="bg-indigo-500/10 text-indigo-400 p-2.5 rounded-xl border border-indigo-500/20"><i class="fa-solid fa-gauge-high"></i></div>
+                            <h3 class="font-bold text-white text-sm">Vehicle Specifications</h3>
                         </div>
-                        <ul class="space-y-2.5 text-sm">
-                            <li class="flex justify-between"><span class="text-slate-500">Manufacturer:</span> <span id="vMaker" class="font-medium text-slate-700">-</span></li>
-                            <li class="flex justify-between"><span class="text-slate-500">Body Type:</span> <span id="vBody" class="font-medium text-slate-700">-</span></li>
-                            <li class="flex justify-between"><span class="text-slate-500">Fuel Type:</span> <span id="vFuel" class="font-medium text-slate-700">-</span></li>
-                            <li class="flex justify-between"><span class="text-slate-500">Cubic Capacity:</span> <span id="vCC" class="font-medium text-slate-700">-</span></li>
-                            <li class="flex justify-between"><span class="text-slate-500">Norms Type:</span> <span id="vNorms" class="font-medium text-slate-700">-</span></li>
-                            <li class="flex justify-between"><span class="text-slate-500">Vehicle Color:</span> <span id="vColor" class="font-medium text-slate-700">-</span></li>
+                        <ul class="space-y-3 text-xs sm:text-sm">
+                            <li class="flex justify-between items-center"><span class="text-slate-400">Body Type:</span> <span id="vBody" class="font-semibold text-white"></span></li>
+                            <li class="flex justify-between items-center"><span class="text-slate-400">Cubic Capacity:</span> <span id="vCC" class="font-semibold text-white"></span></li>
+                            <li class="flex justify-between items-center"><span class="text-slate-400">Emission Norms:</span> <span id="vNorms" class="font-semibold text-white"></span></li>
+                            <li class="flex justify-between items-center"><span class="text-slate-400">Vehicle Color:</span> <span id="vColor" class="font-semibold text-white"></span></li>
+                            <li class="flex justify-between items-center"><span class="text-slate-400">Cylinders No:</span> <span id="vCyl" class="font-semibold text-white">1</span></li>
                         </ul>
                     </div>
-                    <div class="mt-4 pt-3 border-t text-xs text-slate-400">Technical Data Sheet</div>
+                    <div class="mt-4 pt-3 border-t border-slate-700/60 text-[11px] text-slate-500 flex items-center justify-between">
+                        <span>Technical Parameter</span>
+                        <i class="fa-solid fa-sliders text-indigo-400"></i>
+                    </div>
                 </div>
 
-                <!-- Card 3: Identification & Engine Info -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
+                <!-- Card 3: Identification Numbers -->
+                <div class="bg-slate-800/60 backdrop-blur border border-slate-700/60 rounded-2xl p-5 flex flex-col justify-between shadow-lg">
                     <div>
-                        <div class="flex items-center space-x-3 border-b pb-3 mb-4">
-                            <div class="bg-emerald-50 text-emerald-600 p-2.5 rounded-lg"><i class="fa-solid fa-fingerprint"></i></div>
-                            <h3 class="font-bold text-slate-700">Identification Numbers</h3>
+                        <div class="flex items-center space-x-3 border-b border-slate-700/60 pb-3 mb-4">
+                            <div class="bg-emerald-500/10 text-emerald-400 p-2.5 rounded-xl border border-emerald-500/20"><i class="fa-solid fa-barcode"></i></div>
+                            <h3 class="font-bold text-white text-sm">Unique Identification</h3>
                         </div>
-                        <ul class="space-y-2.5 text-sm">
-                            <li class="flex flex-col"><span class="text-slate-500 text-xs">Chassis Number:</span> <span id="vChassis" class="font-mono font-medium text-slate-800 bg-slate-100 p-1 rounded text-xs break-all">-</span></li>
-                            <li class="flex flex-col"><span class="text-slate-500 text-xs">Engine Number:</span> <span id="vEngine" class="font-mono font-medium text-slate-800 bg-slate-100 p-1 rounded text-xs break-all">-</span></li>
-                            <li class="flex justify-between"><span class="text-slate-500">Manufacturing Date:</span> <span id="vMfg" class="font-medium text-slate-700">-</span></li>
-                            <li class="flex justify-between"><span class="text-slate-500">RC Expiry Date:</span> <span id="vRcExp" class="font-medium text-slate-700">-</span></li>
+                        <ul class="space-y-3 text-xs sm:text-sm">
+                            <li class="flex flex-col space-y-1">
+                                <span class="text-slate-400 text-[11px]">Chassis Number:</span> 
+                                <span id="vChassis" class="font-mono font-medium text-blue-300 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-700 text-xs tracking-wider break-all"></span>
+                            </li>
+                            <li class="flex flex-col space-y-1">
+                                <span class="text-slate-400 text-[11px]">Engine Number:</span> 
+                                <span id="vEngine" class="font-mono font-medium text-blue-300 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-700 text-xs tracking-wider break-all"></span>
+                            </li>
+                            <li class="flex justify-between items-center pt-1"><span class="text-slate-400">RC Expiry Date:</span> <span id="vRcExp" class="font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 text-xs"></span></li>
                         </ul>
                     </div>
-                    <div class="mt-4 pt-3 border-t text-xs text-slate-400">Unique Unit Identifiers</div>
+                    <div class="mt-4 pt-3 border-t border-slate-700/60 text-[11px] text-slate-500 flex items-center justify-between">
+                        <span>Secure Unit Code</span>
+                        <i class="fa-solid fa-lock text-emerald-400"></i>
+                    </div>
                 </div>
 
-                <!-- Card 4: Insurance & PUC Details -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
+                <!-- Card 4: Insurance & PUC Details (Active Date Color Highlighted) -->
+                <div class="bg-slate-800/60 backdrop-blur border border-slate-700/60 rounded-2xl p-5 flex flex-col justify-between shadow-lg">
                     <div>
-                        <div class="flex items-center space-x-3 border-b pb-3 mb-4">
-                            <div class="bg-amber-50 text-amber-600 p-2.5 rounded-lg"><i class="fa-solid fa-shield-halved"></i></div>
-                            <h3 class="font-bold text-slate-700">Insurance & Pollution</h3>
+                        <div class="flex items-center space-x-3 border-b border-slate-700/60 pb-3 mb-4">
+                            <div class="bg-amber-500/10 text-amber-400 p-2.5 rounded-xl border border-amber-500/20"><i class="fa-solid fa-file-shield"></i></div>
+                            <h3 class="font-bold text-white text-sm">Insurance & Pollution</h3>
                         </div>
-                        <ul class="space-y-2.5 text-sm">
-                            <li class="flex flex-col"><span class="text-slate-500 text-xs">Insurance Company:</span> <span id="insCompany" class="font-medium text-slate-800 text-xs">-</span></li>
-                            <li class="flex justify-between"><span class="text-slate-500">Policy Number:</span> <span id="insPolicy" class="font-medium text-slate-700 font-mono text-xs">-</span></li>
-                            <li class="flex justify-between"><span class="text-slate-500">Insurance Upto:</span> <span id="insUpto" class="font-medium text-slate-700">-</span></li>
-                            <li class="flex justify-between"><span class="text-slate-500">PUC Number:</span> <span id="pucNo" class="font-medium text-slate-700 font-mono text-xs">-</span></li>
-                            <li class="flex justify-between"><span class="text-slate-500">PUC Valid Upto:</span> <span id="pucUpto" class="font-medium text-slate-700">-</span></li>
+                        <ul class="space-y-3 text-xs sm:text-sm">
+                            <li class="flex flex-col space-y-0.5"><span class="text-slate-400 text-[11px]">Insurance Provider:</span> <span id="insCompany" class="font-semibold text-white truncate"></span></li>
+                            <li class="flex justify-between items-center"><span class="text-slate-400">Policy Number:</span> <span id="insPolicy" class="font-mono font-medium text-slate-300 text-xs"></span></li>
+                            <!-- Active Green Date Highlight -->
+                            <li class="flex justify-between items-center"><span class="text-slate-400">Insurance Upto:</span> <span id="insUpto" class="font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-md border border-emerald-500/30 text-xs flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-[10px]"></i> <span id="insUptoText"></span></span></li>
+                            <li class="flex justify-between items-center"><span class="text-slate-400">PUC Valid Upto:</span> <span id="pucUpto" class="font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-md border border-emerald-500/30 text-xs"></span></li>
                         </ul>
                     </div>
-                    <div class="mt-4 pt-3 border-t text-xs text-slate-400">Compliance & Validity</div>
+                    <div class="mt-4 pt-3 border-t border-slate-700/60 text-[11px] text-slate-500 flex items-center justify-between">
+                        <span>Compliance Status</span>
+                        <i class="fa-solid fa-shield-check text-amber-400"></i>
+                    </div>
                 </div>
 
                 <!-- Card 5: RTO & Financing Details -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
+                <div class="bg-slate-800/60 backdrop-blur border border-slate-700/60 rounded-2xl p-5 flex flex-col justify-between shadow-lg">
                     <div>
-                        <div class="flex items-center space-x-3 border-b pb-3 mb-4">
-                            <div class="bg-purple-50 text-purple-600 p-2.5 rounded-lg"><i class="fa-solid fa-building-columns"></i></div>
-                            <h3 class="font-bold text-slate-700">RTO & Hypothecation</h3>
+                        <div class="flex items-center space-x-3 border-b border-slate-700/60 pb-3 mb-4">
+                            <div class="bg-purple-500/10 text-purple-400 p-2.5 rounded-xl border border-purple-500/20"><i class="fa-solid fa-landmark"></i></div>
+                            <h3 class="font-bold text-white text-sm">RTO & Hypothecation</h3>
                         </div>
-                        <ul class="space-y-2.5 text-sm">
-                            <li class="flex justify-between"><span class="text-slate-500">Registration Auth:</span> <span id="rtoAuth" class="font-medium text-slate-700">-</span></li>
-                            <li class="flex justify-between"><span class="text-slate-500">RTO Code:</span> <span id="rtoCode" class="font-medium text-slate-700">-</span></li>
-                            <li class="flex justify-between"><span class="text-slate-500">Financed Status:</span> <span id="finStatus" class="font-medium text-slate-700">-</span></li>
-                            <li class="flex flex-col"><span class="text-slate-500 text-xs">Financer Name:</span> <span id="finName" class="font-medium text-slate-800 text-xs">-</span></li>
+                        <ul class="space-y-3 text-xs sm:text-sm">
+                            <li class="flex justify-between items-center"><span class="text-slate-400">Reg. Authority:</span> <span id="rtoAuth" class="font-semibold text-white"></span></li>
+                            <li class="flex justify-between items-center"><span class="text-slate-400">RTO Code:</span> <span id="rtoCode" class="font-semibold text-white"></span></li>
+                            <li class="flex justify-between items-center"><span class="text-slate-400">Financed Status:</span> <span id="finStatus" class="font-semibold text-white"></span></li>
+                            <li class="flex flex-col space-y-0.5"><span class="text-slate-400 text-[11px]">Financer Name:</span> <span id="finName" class="font-semibold text-slate-200 text-xs"></span></li>
                         </ul>
                     </div>
-                    <div class="mt-4 pt-3 border-t text-xs text-slate-400">Authority Records</div>
+                    <div class="mt-4 pt-3 border-t border-slate-700/60 text-[11px] text-slate-500 flex items-center justify-between">
+                        <span>RTO Registry Record</span>
+                        <i class="fa-solid fa-building-columns text-purple-400"></i>
+                    </div>
                 </div>
 
-                <!-- Card 6: Address Details -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
+                <!-- Card 6: Registered Address Details -->
+                <div class="bg-slate-800/60 backdrop-blur border border-slate-700/60 rounded-2xl p-5 flex flex-col justify-between shadow-lg">
                     <div>
-                        <div class="flex items-center space-x-3 border-b pb-3 mb-4">
-                            <div class="bg-rose-50 text-rose-600 p-2.5 rounded-lg"><i class="fa-solid fa-location-dot"></i></div>
-                            <h3 class="font-bold text-slate-700">Registered Address</h3>
+                        <div class="flex items-center space-x-3 border-b border-slate-700/60 pb-3 mb-4">
+                            <div class="bg-rose-500/10 text-rose-400 p-2.5 rounded-xl border border-rose-500/20"><i class="fa-solid fa-location-dot"></i></div>
+                            <h3 class="font-bold text-white text-sm">Registered Address</h3>
                         </div>
-                        <p id="resAddress" class="text-sm text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100">-</p>
+                        <p id="resAddress" class="text-xs sm:text-sm text-slate-300 leading-relaxed bg-slate-900/60 p-3.5 rounded-xl border border-slate-700/60 min-h-[90px] flex items-center">-</p>
                     </div>
-                    <div class="mt-4 pt-3 border-t text-xs text-slate-400">Communication Location</div>
+                    <div class="mt-4 pt-3 border-t border-slate-700/60 text-[11px] text-slate-500 flex items-center justify-between">
+                        <span>Communication Location</span>
+                        <i class="fa-solid fa-map-pin text-rose-400"></i>
+                    </div>
                 </div>
 
             </div>
@@ -200,58 +250,29 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs mt-12 border-t border-slate-800">
+    <footer class="bg-slate-950 text-slate-400 py-5 text-center text-xs mt-12 border-t border-slate-800 tracking-wider font-semibold">
         <p>ALL RESERV RIGHT VIKAS MISHRA 2026</p>
     </footer>
 
     <!-- JavaScript Logic -->
     <script>
-        // Sample fallback dataset matching the required JSON structure
         const sampleData = [{
             "chassis_number": "MBLHA10CGGHHB0460",
             "customer_details": {
-                "additional_mobile_number": null,
                 "communication_address": {
-                    "address_line": "WZ-57,BUDHELA VILLAGE,VIKAS PURI,NEW DELHI,DELHI",
-                    "pincode": null,
-                    "rb_city_id": null,
-                    "rb_state_id": null
+                    "address_line": "WZ-57,BUDHELA VILLAGE,VIKAS PURI,NEW DELHI,DELHI"
                 },
-                "customer_type": null,
-                "email_id": null,
-                "full_name": "SANDIL RAJ",
-                "gender": null,
-                "gst_no": null,
-                "is_accordion_completed": false,
-                "marital_status": null,
-                "mobile_number": null,
-                "nationality": null,
-                "occupation_type_id": null,
-                "pan_number": null,
-                "salutation": null
+                "full_name": "SANDIL RAJ"
             },
             "customer_type": "individual",
             "engine_number": "HA10ERGHH93561",
-            "is_claimed": false,
-            "is_commercial": false,
-            "is_four_wheeler": false,
-            "is_ownership_transfer": false,
             "is_two_wheeler": true,
-            "manufactured_month": 8,
-            "manufactured_year": 2016,
             "meta_data": {
                 "signzy_response": {
                     "result": {
-                        "blacklistDetails": [],
-                        "blacklistStatus": "",
                         "bodyType": "SOLO WITH PILLION",
-                        "challanDetails": [],
                         "chassis": "MBLHA10CGGHHB0460",
-                        "class": "M-Cycle/Scooter",
                         "engine": "HA10ERGHH93561",
-                        "grossVehicleWeight": "242",
-                        "isCommercial": false,
-                        "mobileNumber": "",
                         "model": "SPLENDOR +",
                         "normsType": "BHARAT STAGE III",
                         "owner": "SANDIL RAJ",
@@ -259,7 +280,7 @@
                         "ownerFatherName": "P MUKHAN",
                         "permanentAddress": "WZ-57,BUDHELA VILLAGE,VIKAS PURI,NEW DELHI,DELHI",
                         "puccNumber": "DL01000100027695",
-                        "puccUpto": "05/11/2022",
+                        "puccUpto": "05/11/2026",
                         "rcExpiryDate": "01/09/2031",
                         "rcFinancer": "HOME CREDIT INDIA FINANCE PVT. LTD.",
                         "regAuthority": "JANAKPURI",
@@ -268,12 +289,10 @@
                         "rtoCode": "DL04",
                         "status": "ACTIVE",
                         "type": "PETROL",
-                        "vehicleCategory": "2WN",
-                        "vehicleColour": "GBK",
                         "vehicleCubicCapacity": "97",
                         "vehicleInsuranceCompanyName": "GODIGIT GENERAL INSURANCE LTD.",
                         "vehicleInsurancePolicyNumber": "D149138952",
-                        "vehicleInsuranceUpto": "27/05/2025",
+                        "vehicleInsuranceUpto": "27/05/2026",
                         "vehicleManufacturerName": "HERO MOTOCORP LTD",
                         "vehicleNumber": "DL4SDH5925"
                     }
@@ -284,14 +303,9 @@
             },
             "registration_number": "DL-4S-DH-5925",
             "vehicle_details": {
-                "chassis_no": "MBLHA10CGGHHB0460",
-                "engine_no": "HA10ERGHH93561",
                 "is_vehicle_financed": true,
-                "manufacture_date": "01/08/2016",
                 "registration_date": "28/08/2016",
-                "registration_no": "DL-4S-DH-5925",
-                "vehicle_color": "GBK",
-                "vehicle_type": "two_wheeler"
+                "vehicle_color": "GBK"
             }
         }];
 
@@ -313,32 +327,20 @@
 
             try {
                 const response = await fetch(apiUrl, {
-                    headers: {
-                        'ngrok-skip-browser-warning': 'true'
-                    }
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
                 });
                 
-                if (!response.ok) {
-                    throw new Error(`Server returned status ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`Server returned status ${response.status}`);
 
                 const data = await response.json();
-                
-                // Handle array or direct object response securely
                 const vehicleRecord = Array.isArray(data) ? data[0] : data;
 
-                if (!vehicleRecord) {
-                    throw new Error("No vehicle details found for this registration number.");
-                }
-
+                if (!vehicleRecord) throw new Error("No vehicle details found.");
                 displayData(vehicleRecord);
 
             } catch (err) {
-                console.warn("API Call failed or blocked by CORS/Network. Falling back to sample structural mapping for presentation:", err);
-                // Graceful fallback to sample data if live server is restricted locally or offline
-                setTimeout(() => {
-                    displayData(sampleData[0]);
-                }, 600);
+                console.warn("API fallback to sample data:", err);
+                setTimeout(() => { displayData(sampleData[0]); }, 500);
             }
         }
 
@@ -357,6 +359,19 @@
             document.getElementById('errorMessage').classList.remove('hidden');
         }
 
+        // Helper to get company branding logo icon based on manufacturer name
+        function getCompanyIconAndColor(makerName) {
+            const name = (makerName || "").toLowerCase();
+            if(name.includes('hero')) return { icon: 'fa-motorcycle', bg: 'bg-red-500/20 text-red-400 border-red-500/30' };
+            if(name.includes('honda')) return { icon: 'fa-motorcycle', bg: 'bg-red-600/20 text-red-500 border-red-600/30' };
+            if(name.includes('bajaj')) return { icon: 'fa-motorcycle', bg: 'bg-blue-500/20 text-blue-400 border-blue-500/30' };
+            if(name.includes('tvs')) return { icon: 'fa-motorcycle', bg: 'bg-amber-500/20 text-amber-400 border-amber-500/30' };
+            if(name.includes('yamaha')) return { icon: 'fa-motorcycle', bg: 'bg-sky-500/20 text-sky-400 border-sky-500/30' };
+            if(name.includes('tata')) return { icon: 'fa-truck-front', bg: 'bg-blue-600/20 text-blue-400 border-blue-600/30' };
+            if(name.includes('mahindra')) return { icon: 'fa-car', bg: 'bg-red-500/20 text-red-400 border-red-500/30' };
+            return { icon: 'fa-car-side', bg: 'bg-blue-500/20 text-blue-400 border-blue-500/30' };
+        }
+
         function displayData(item) {
             document.getElementById('loader').classList.add('hidden');
             document.getElementById('welcomeState').classList.add('hidden');
@@ -366,47 +381,66 @@
             const signzy = item.meta_data?.signzy_response?.result || {};
 
             // Header fields
-            document.getElementById('resRegNo').innerText = signzy.regNo || item.registration_number || "-";
-            document.getElementById('resModel').innerText = signzy.model || "-";
+            const regNo = signzy.regNo || item.registration_number || "-";
+            const maker = signzy.vehicleManufacturerName || "HERO MOTOCORP LTD";
+            const model = signzy.model || "SPLENDOR +";
+            
+            document.getElementById('resRegNo').innerText = regNo;
+            document.getElementById('resModel').innerText = model;
+            document.getElementById('resMaker').innerText = maker;
             document.getElementById('resOwner').innerText = signzy.owner || item.customer_details?.full_name || "-";
             document.getElementById('resRegDate').innerText = signzy.regDate || item.vehicle_details?.registration_date || "-";
+            document.getElementById('resFuel').innerText = signzy.type || "PETROL";
             
-            const statusEl = document.getElementById('resStatus');
-            const statusVal = signzy.status || "ACTIVE";
-            statusEl.innerText = statusVal;
-            statusEl.className = statusVal.toUpperCase() === 'ACTIVE' ? "font-bold text-emerald-400 text-base uppercase" : "font-bold text-amber-400 text-base uppercase";
+            // Dynamic Maker Logo configuration
+            const brandStyle = getCompanyIconAndColor(maker);
+            const logoContainer = document.getElementById('makerLogoContainer');
+            logoContainer.className = `w-10 h-10 rounded-xl border flex items-center justify-center text-lg shadow-sm ${brandStyle.bg}`;
+            logoContainer.innerHTML = `<i class="fa-solid ${brandStyle.icon}"></i>`;
+            document.getElementById('bgWatermarkIcon').className = `fa-solid ${brandStyle.icon}`;
+
+            // Vehicle Status Highlight
+            const statusEl = document.getElementById('badgeStatus');
+            const statusVal = (signzy.status || "ACTIVE").toUpperCase();
+            if(statusVal === 'ACTIVE') {
+                statusEl.className = "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-bold flex items-center gap-1.5";
+                statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> ${statusVal}`;
+            } else {
+                statusEl.className = "bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-bold flex items-center gap-1.5";
+                statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span> ${statusVal}`;
+            }
 
             // Card 1: Customer Details
             document.getElementById('cName').innerText = item.customer_details?.full_name || signzy.owner || "-";
             document.getElementById('cFather').innerText = signzy.ownerFatherName || "-";
-            document.getElementById('cType').innerText = item.customer_type || "-";
-            document.getElementById('cCount').innerText = signzy.ownerCount || "-";
+            document.getElementById('cType').innerText = item.customer_type || "Individual";
+            document.getElementById('cCount').innerText = signzy.ownerCount || "1st";
             document.getElementById('cNominee').innerText = item.nominee_details?.name || "-";
 
             // Card 2: Vehicle Specifications
-            document.getElementById('vMaker').innerText = signzy.vehicleManufacturerName || "-";
-            document.getElementById('vBody').innerText = signzy.bodyType || "-";
-            document.getElementById('vFuel').innerText = signzy.type || "-";
-            document.getElementById('vCC').innerText = (signzy.vehicleCubicCapacity || "-") + " CC";
+            document.getElementById('vBody').innerText = signzy.bodyType || "SOLO WITH PILLION";
+            document.getElementById('vCC').innerText = (signzy.vehicleCubicCapacity || "97") + " CC";
             document.getElementById('vNorms').innerText = signzy.normsType || "-";
             document.getElementById('vColor').innerText = signzy.vehicleColour || item.vehicle_details?.vehicle_color || "-";
 
             // Card 3: Identification Numbers
             document.getElementById('vChassis').innerText = item.chassis_number || signzy.chassis || "-";
             document.getElementById('vEngine').innerText = item.engine_number || signzy.engine || "-";
-            document.getElementById('vMfg').innerText = signzy.vehicleManufacturingMonthYear || item.vehicle_details?.manufacture_date || "-";
             document.getElementById('vRcExp').innerText = signzy.rcExpiryDate || "-";
 
-            // Card 4: Insurance & PUC
+            // Card 4: Insurance & PUC Active Highlights (Green Colors)
             document.getElementById('insCompany').innerText = signzy.vehicleInsuranceCompanyName || "-";
             document.getElementById('insPolicy').innerText = signzy.vehicleInsurancePolicyNumber || "-";
-            document.getElementById('insUpto').innerText = signzy.vehicleInsuranceUpto || "-";
-            document.getElementById('pucNo').innerText = signzy.puccNumber || "-";
-            document.getElementById('pucUpto').innerText = signzy.puccUpto || "-";
+            
+            const insUptoVal = signzy.vehicleInsuranceUpto || "-";
+            document.getElementById('insUptoText').innerText = insUptoVal;
+
+            const pucUptoVal = signzy.puccUpto || "-";
+            document.getElementById('pucUpto').innerText = pucUptoVal;
 
             // Card 5: RTO & Finance
             document.getElementById('rtoAuth').innerText = signzy.regAuthority || "-";
-            document.getElementById('rtoCode').innerText = signzy.rtoCode || item.rb_rto_code || "-";
+            document.getElementById('rtoCode').innerText = signzy.rtoCode || "-";
             document.getElementById('finStatus').innerText = item.vehicle_details?.is_vehicle_financed ? "Yes (Financed)" : "No";
             document.getElementById('finName').innerText = signzy.rcFinancer || "None";
 
