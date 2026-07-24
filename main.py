@@ -1,11 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 import requests
 
 app = FastAPI()
 
-# CORS allow karna zaroori hai taaki HTML page local ya live server se baat kar sake
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -15,35 +15,149 @@ app.add_middleware(
 )
 
 
+# 1. Yeh route seedha aapka sundar web page browser me khol dega
+@app.get("/", response_class=HTMLResponse)
+def home_page():
+    return """
+    <!DOCTYPE html>
+    <html lang="hi">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Vehicle Details Finder</title>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
+            .container { max-width: 700px; margin: 0 auto; background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+            h2 { text-align: center; color: #333; margin-bottom: 25px; }
+            .form-group { margin-bottom: 15px; }
+            label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
+            input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
+            button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: background 0.3s; }
+            button:hover { background-color: #0056b3; }
+            .result-section { margin-top: 25px; display: none; }
+            .card { background: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+            .card h3 { margin-top: 0; color: #007bff; font-size: 18px; border-bottom: 2px solid #ccc; padding-bottom: 5px; }
+            .info-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #d6d8db; }
+            .info-row span:first-child { font-weight: bold; color: #495057; }
+            .json-toggle-btn { background-color: #6c757d; margin-top: 10px; }
+            pre { background: #212529; color: #f8f9fa; padding: 15px; border-radius: 6px; overflow-x: auto; display: none; font-size: 13px; }
+            .loader { text-align: center; display: none; color: #007bff; font-weight: bold; margin-top: 15px; }
+        </style>
+    </head>
+    <body>
+    <div class="container">
+        <h2>Vehicle Details Finder</h2>
+        <div class="form-group">
+            <label>Tata AIG Auth Token:</label>
+            <input type="text" id="token" placeholder="Apna naya in-auth-token yahan paste karein">
+        </div>
+        <div class="form-group">
+            <label>Vehicle Number:</label>
+            <input type="text" id="vehicleNumber" placeholder="Jaise: GJ05HG7801">
+        </div>
+        <button onclick="fetchDetails()">Search Details</button>
+        <div class="loader" id="loader">Data fetch ho raha hai, kripya intezaار karein...</div>
+        <div class="result-section" id="resultSection">
+            <div class="card">
+                <h3>Vehicle Registration Summary</h3>
+                <div class="info-row"><span>Owner Name:</span> <span id="ownerName">-</span></div>
+                <div class="info-row"><span>Maker Model:</span> <span id="makerModel">-</span></div>
+                <div class="info-row"><span>Registration No:</span> <span id="regNo">-</span></div>
+                <div class="info-row"><span>Fuel Type:</span> <span id="fuelType">-</span></div>
+                <div class="info-row"><span>Registration Date:</span> <span id="regDate">-</span></div>
+                <div class="info-row"><span>Insurance Upto:</span> <span id="insUpto">-</span></div>
+                <div class="info-row"><span>RTO Registered At:</span> <span id="regAt">-</span></div>
+            </div>
+            <button class="json-toggle-btn" onclick="toggleJson()">View Raw JSON Data</button>
+            <pre id="rawJsonBox"></pre>
+        </div>
+    </div>
+    <script>
+        async function fetchDetails() {
+            const token = document.getElementById('token').value;
+            const vehicleNumber = document.getElementById('vehicleNumber').value;
+            const loader = document.getElementById('loader');
+            const resultSection = document.getElementById('resultSection');
+
+            if (!token || !vehicleNumber) {
+                alert("Kripya Token aur Vehicle Number dono bharein!");
+                return;
+            }
+
+            loader.style.display = "block";
+            resultSection.style.display = "none";
+
+            try {
+                const response = await fetch('/get-vehicle-details', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: token, vehicle_number: vehicleNumber })
+                });
+
+                const result = await response.json();
+                loader.style.display = "none";
+
+                if (response.ok && result.data && result.data.length > 0) {
+                    const info = result.data[0];
+                    document.getElementById('ownerName').innerText = info.rc_owner_name || "N/A";
+                    document.getElementById('makerModel').innerText = info.rc_maker_model || "N/A";
+                    document.getElementById('regNo').innerText = info.rc_regn_no || vehicleNumber;
+                    document.getElementById('fuelType').innerText = info.rc_fuel_desc || "N/A";
+                    document.getElementById('regDate').innerText = info.rc_regn_dt || "N/A";
+                    document.getElementById('insUpto').innerText = info.rc_insurance_upto || "N/A";
+                    document.getElementById('regAt').innerText = info.rc_registered_at || "N/A";
+                    document.getElementById('rawJsonBox').innerText = JSON.stringify(result, null, 4);
+                    resultSection.style.display = "block";
+                } else {
+                    alert("Data laane me error aayi ya token expire ho gaya hai!");
+                }
+            } catch (error) {
+                loader.style.display = "none";
+                alert("Server connection fail ho gaya: " + error);
+            }
+        }
+        function toggleJson() {
+            const jsonBox = document.getElementById('rawJsonBox');
+            jsonBox.style.display = (jsonBox.style.display === "none" || jsonBox.style.display === "") ? "block" : "none";
+        }
+    </script>
+    </body>
+    </html>
+    """
+
+
 class RequestData(BaseModel):
     token: str
     vehicle_number: str
 
 
+# 2. Yeh API route Tata AIG se data nikal kar layega
 @app.post("/get-vehicle-details")
 def get_vehicle_details(data: RequestData):
-    target_url = "https://sellmotor.tataaig.com/api/v1/motornstpservice/getVahanInfo"
+  target_url = (
+      "https://sellmotor.tataaig.com/api/v1/motornstpservice/getVahanInfo"
+  )
 
-    custom_headers = {
-        "Origin": "https://sellonline.tataaig.com",
-        "Referer": "https://sellonline.tataaig.com/",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "in-auth-token": data.token.strip(),
-        "Content-Type": "application/json",
-    }
+  custom_headers = {
+      "Origin": "https://sellonline.tataaig.com",
+      "Referer": "https://sellonline.tataaig.com/",
+      "User-Agent": (
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+      ),
+      "in-auth-token": data.token.strip(),
+      "Content-Type": "application/json",
+  }
 
-    payload = {
-        "rcnumber": data.vehicle_number.strip().upper(),
-        "vehicle_type": "TW",
-        "calling_system": "IPDS-V2",
-    }
+  payload = {
+      "rcnumber": data.vehicle_number.strip().upper(),
+      "vehicle_type": "TW",
+      "calling_system": "IPDS-V2",
+  }
 
-    try:
-        api_response = requests.post(
-            target_url, headers=custom_headers, json=payload, timeout=10
-        )
-        return api_response.json()
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"API call fail ho gayi: {str(e)}"
-        )
+  try:
+    api_response = requests.post(
+        target_url, headers=custom_headers, json=payload, timeout=15
+    )
+    return api_response.json()
+  except Exception as e:
+    raise HTTPException(status_code=500, detail=str(e))
