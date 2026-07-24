@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <title>Vehicle Service Portal</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f7f6; padding: 40px; }
+        .box { max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        input, button { width: 100%; padding: 12px; margin-top: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        button { background: #007bff; color: white; font-weight: bold; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        pre { background: #212529; color: #f8f9fa; padding: 15px; border-radius: 4px; margin-top: 15px; max-height: 350px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>Vehicle Service Portal</h2>
+        
+        <label><b>Token daalein:</b></label>
+        <input type="text" id="token" placeholder="Apna naya token yahan paste karein">
+        
+        <label><b>Gaadi ka Number:</b></label>
+        <input type="text" id="number" placeholder="Jaise: GJ05HG7801" onkeydown="if(event.key === 'Enter') getData()">
+        
+        <button onclick="getData()">Details Nikalein</button>
+        
+        <pre id="result">Result yahin dikhega...</pre>
+    </div>
+
+    <script>
+        async function getData() {
+            const token = document.getElementById('token').value.trim();
+            const number = document.getElementById('number').value.trim();
+            const resultBox = document.getElementById('result');
+            
+            if(!token || !number) {
+                alert("Kripya Token aur Vehicle Number dono bharein!");
+                return;
+            }
+
+            resultBox.innerText = "Data fetch ho raha hai, intezaar karein...";
+
+            try {
+                // Yahan apna Render ka live URL daal dena (jaise https://vahan-api-xzbq.onrender.com)
+                const backendUrl = "https://vahan-api-xzbq.onrender.com/call-tata-aig";
+                
+                const response = await fetch(`${backendUrl}?number=${encodeURIComponent(number)}&token=${encodeURIComponent(token)}`);
+                const data = await response.json();
+                
+                resultBox.innerText = JSON.stringify(data, null, 4);
+            } catch(e) {
+                resultBox.innerText = "Error: Connection fail ho gaya!";
+            }
+        }
+    </script>
+</body>
+</html>
