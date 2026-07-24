@@ -1,507 +1,219 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-900">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vehicle Details Finder | RC Info Portal</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#f0f6ff',
-                            100: '#e0edff',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    
+    <title>Parivahan & Vehicle Service Portal</title>
     <style>
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
         }
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 4px;
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
+        .form-group {
+            margin-bottom: 15px;
         }
-        /* Print Styles */
-        @media print {
-            body {
-                background: white !important;
-                color: black !important;
-            }
-            .no-print {
-                display: none !important;
-            }
-            .print-border {
-                border: 1px solid #cbd5e1 !important;
-                box-shadow: none !important;
-            }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result-section {
+            margin-top: 25px;
+            display: none;
+        }
+        .card {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .card h3 {
+            margin-top: 0;
+            color: #007bff;
+            font-size: 18px;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 5px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px dashed #d6d8db;
+        }
+        .info-row span:first-child {
+            font-weight: bold;
+            color: #495057;
+        }
+        .json-toggle-btn {
+            background-color: #6c757d;
+            margin-top: 10px;
+        }
+        .json-toggle-btn:hover {
+            background-color: #5a6268;
+        }
+        pre {
+            background: #212529;
+            color: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            display: none;
+            font-size: 13px;
+        }
+        .loader {
+            text-align: center;
+            display: none;
+            color: #007bff;
+            font-weight: bold;
+            margin-top: 15px;
         }
     </style>
 </head>
-<body class="h-full text-slate-100 flex flex-col font-sans antialiased bg-slate-900">
+<body>
 
-    <!-- Header / Navbar -->
-    <header class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700/60 sticky top-0 z-50 no-print">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="bg-blue-600/20 text-blue-400 p-2.5 rounded-xl border border-blue-500/30">
-                    <i class="fa-solid fa-car-rear text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-xl font-bold tracking-tight text-white">VahanDetails<span class="text-blue-500">.io</span></h1>
-                    <p class="text-xs text-slate-400">RC & Vehicle Info Portal</p>
-                </div>
-            </div>
-            <div class="flex items-center space-x-3">
-                <button onclick="window.print()" class="hidden sm:inline-flex items-center space-x-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm px-4 py-2 rounded-lg transition-all duration-200 border border-slate-600">
-                    <i class="fa-solid fa-print text-xs"></i>
-                    <span>Print Page</span>
-                </button>
-            </div>
+<div class="container">
+    <h2>Vehicle Details Finder</h2>
+    
+    <div class="form-group">
+        <label>FastAPI Backend URL:</label>
+        <input type="text" id="apiUrl" value="http://127.0.0.1:8000/get-vehicle-details">
+    </div>
+
+    <div class="form-group">
+        <label>Tata AIG Auth Token:</label>
+        <input type="text" id="token" placeholder="Apna naya in-auth-token yahan paste karein">
+    </div>
+
+    <div class="form-group">
+        <label>Vehicle Number:</label>
+        <input type="text" id="vehicleNumber" placeholder="Jaise: GJ05HG7801">
+    </div>
+
+    <button onclick="fetchDetails()">Search Details</button>
+    <div class="loader" id="loader">Data fetch ho raha hai, kripya intezaar karein...</div>
+
+    <div class="result-section" id="resultSection">
+        <!-- Best CSS Styled UI Card -->
+        <div class="card">
+            <h3>Vehicle Registration Summary</h3>
+            <div class="info-row"><span>Owner Name:</span> <span id="ownerName">-</span></div>
+            <div class="info-row"><span>Maker Model:</span> <span id="makerModel">-</span></div>
+            <div class="info-row"><span>Registration No:</span> <span id="regNo">-</span></div>
+            <div class="info-row"><span>Fuel Type:</span> <span id="fuelType">-</span></div>
+            <div class="info-row"><span>Registration Date:</span> <span id="regDate">-</span></div>
+            <div class="info-row"><span>Insurance Upto:</span> <span id="insUpto">-</span></div>
+            <div class="info-row"><span>RTO Registered At:</span> <span id="regAt">-</span></div>
         </div>
-    </header>
 
-    <!-- Main Container -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        
-        <!-- Search Section -->
-        <section class="bg-slate-800/50 border border-slate-700/70 rounded-2xl p-6 sm:p-8 backdrop-blur-sm shadow-xl no-print">
-            <div class="max-w-3xl mx-auto text-center space-y-4">
-                <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Search Vehicle Details</h2>
-                <p class="text-slate-400 text-sm sm:text-base">Enter any Registration Number (RC) to fetch comprehensive owner, vehicle, and RTO information.</p>
+        <!-- View JSON Button & Raw Box -->
+        <button class="json-toggle-btn" onclick="toggleJson()">View Raw JSON Data</button>
+        <pre id="rawJsonBox"></pre>
+    </div>
+</div>
+
+<script>
+    async function fetchDetails() {
+        const apiUrl = document.getElementById('apiUrl').value;
+        const token = document.getElementById('token').value;
+        const vehicleNumber = document.getElementById('vehicleNumber').value;
+        const loader = document.getElementById('loader');
+        const resultSection = document.getElementById('resultSection');
+
+        if (!token || !vehicleNumber) {
+            alert("Kripya Token aur Vehicle Number dono bharein!");
+            return;
+        }
+
+        loader.style.display = "block";
+        resultSection.style.display = "none";
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ token: token, vehicle_number: vehicleNumber })
+            });
+
+            const result = await response.json();
+            loader.style.display = "none";
+
+            if (response.ok && result.data && result.data.length > 0) {
+                const info = result.data[0]; // First object of data array
+
+                // UI Fields fill karna
+                document.getElementById('ownerName').innerText = info.rc_owner_name || "N/A";
+                document.getElementById('makerModel').innerText = info.rc_maker_model || "N/A";
+                document.getElementById('regNo').innerText = info.rc_regn_no || vehicleNumber;
+                document.getElementById('fuelType').innerText = info.rc_fuel_desc || "N/A";
+                document.getElementById('regDate').innerText = info.rc_regn_dt || "N/A";
+                document.getElementById('insUpto').innerText = info.rc_insurance_upto || "N/A";
+                document.getElementById('regAt').innerText = info.rc_registered_at || "N/A";
+
+                // Raw JSON box me poora data daalna
+                document.getElementById('rawJsonBox').innerText = JSON.stringify(result, null, 4);
                 
-                <form id="searchForm" onsubmit="handleSearch(event)" class="pt-2">
-                    <div class="flex flex-col sm:flex-row gap-3">
-                        <div class="relative flex-1">
-                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                                <i class="fa-solid fa-id-card text-lg"></i>
-                            </div>
-                            <input 
-                                type="text" 
-                                id="vehicleInput" 
-                                placeholder="e.g. UP32FT8571" 
-                                required
-                                class="w-full pl-11 pr-4 py-3.5 bg-slate-900/90 border border-slate-700 rounded-xl text-white placeholder-slate-500 font-semibold tracking-wider focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all uppercase"
-                            />
-                        </div>
-                        <button 
-                            type="submit" 
-                            id="searchBtn"
-                            class="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-8 py-3.5 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg shadow-blue-600/20 active:scale-95"
-                        >
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                            <span>Search Info</span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </section>
-
-        <!-- Status Message / Loader Container -->
-        <div id="statusContainer" class="hidden no-print">
-            <!-- Loading State -->
-            <div id="loadingState" class="hidden bg-slate-800/40 border border-slate-700/50 rounded-2xl p-12 text-center space-y-4">
-                <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-                <p class="text-slate-300 font-medium">Fetching vehicle record from RTO server...</p>
-            </div>
-
-            <!-- Error State -->
-            <div id="errorState" class="hidden bg-red-500/10 border border-red-500/30 rounded-2xl p-6 text-center space-y-3">
-                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-500/20 text-red-400 mb-1">
-                    <i class="fa-solid fa-triangle-exclamation text-xl"></i>
-                </div>
-                <h3 id="errorTitle" class="text-lg font-bold text-red-400">Failed to load data</h3>
-                <p id="errorMessage" class="text-slate-300 text-sm max-w-md mx-auto">Please check the vehicle number and try again.</p>
-            </div>
-        </div>
-
-        <!-- Dashboard Content (Rendered dynamically) -->
-        <div id="vehicleDashboard" class="space-y-6">
-            <!-- Default Empty State -->
-            <div id="emptyState" class="bg-slate-800/30 border border-slate-700/40 rounded-2xl p-12 text-center space-y-3">
-                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-800 text-slate-500 mb-2">
-                    <i class="fa-solid fa-magnifying-glass-location text-2xl"></i>
-                </div>
-                <h3 class="text-lg font-semibold text-slate-300">No Vehicle Selected</h3>
-                <p class="text-slate-500 text-sm max-w-md mx-auto">Enter a valid RC number in the search bar above to view detailed registration information.</p>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-slate-950 border-t border-slate-800 py-6 mt-auto no-print">
-        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 space-y-1">
-            <p>© 2026 VahanDetails Portal. All data is synchronized from public database records.</p>
-            <p>Single Page Dashboard • Fast & Secure</p>
-        </div>
-    </footer>
-
-    <!-- JavaScript Application Logic -->
-    <script>
-        // Form submit handler
-        function handleSearch(event) {
-            event.preventDefault();
-            const input = document.getElementById('vehicleInput').value.trim();
-            if (!input) return;
-            fetchVehicleData(input);
-        }
-
-        // Fetch Data from API
-        async function fetchVehicleData(vehicleNum) {
-            const statusContainer = document.getElementById('statusContainer');
-            const loadingState = document.getElementById('loadingState');
-            const errorState = document.getElementById('errorState');
-            const dashboard = document.getElementById('vehicleDashboard');
-
-            // Reset Views
-            dashboard.innerHTML = '';
-            statusContainer.classList.remove('hidden');
-            loadingState.classList.remove('hidden');
-            errorState.classList.add('hidden');
-
-            const apiUrl = `https://randkikichut.vercel.app/?vehicle_number=${encodeURIComponent(vehicleNum)}`;
-
-            try {
-                const response = await fetch(apiUrl);
-                if (!response.ok) {
-                    throw new Error(`HTTP Error Status: ${response.status}`);
-                }
-                
-                const responseData = await response.json();
-                loadingState.classList.add('hidden');
-
-                // Normalize both Object `{status, data}` & Array `[{status, data}]` responses
-                let targetRecord = null;
-
-                if (Array.isArray(responseData) && responseData.length > 0) {
-                    targetRecord = responseData[0];
-                } else if (responseData && typeof responseData === 'object') {
-                    targetRecord = responseData;
-                }
-
-                if (targetRecord && targetRecord.status === 'success' && targetRecord.data) {
-                    statusContainer.classList.add('hidden');
-                    renderVehicleDetails(targetRecord.data);
-                } else if (targetRecord && targetRecord.data) {
-                    statusContainer.classList.add('hidden');
-                    renderVehicleDetails(targetRecord.data);
-                } else {
-                    showError('No Record Found', 'The requested vehicle details could not be found in the database.');
-                }
-
-            } catch (err) {
-                loadingState.classList.add('hidden');
-                showError('Connection Error', 'Unable to connect to the vehicle registry API or CORS issue occurred.');
-                console.error("API Fetch Error:", err);
+                resultSection.style.display = "block";
+            } else {
+                alert("Data laane me error aayi ya token expire ho gaya hai!");
             }
+
+        } catch (error) {
+            loader.style.display = "none";
+            alert("Server connection fail ho gaya: " + error);
         }
+    }
 
-        // Helper Error Display
-        function showError(title, msg) {
-            const statusContainer = document.getElementById('statusContainer');
-            const errorState = document.getElementById('errorState');
-            document.getElementById('errorTitle').innerText = title;
-            document.getElementById('errorMessage').innerText = msg;
-            statusContainer.classList.remove('hidden');
-            errorState.classList.remove('hidden');
+    function toggleJson() {
+        const jsonBox = document.getElementById('rawJsonBox');
+        if (jsonBox.style.display === "none" || jsonBox.style.display === "") {
+            jsonBox.style.display = "block";
+        } else {
+            jsonBox.style.display = "none";
         }
+    }
+</script>
 
-        // Safe Value Getter for Null/Undefined/Empty Checking
-        function safeVal(val, fallback = 'N/A') {
-            if (val === null || val === undefined || val === '' || val === 'null') {
-                return fallback;
-            }
-            return val;
-        }
-
-        // Format Date String safely
-        function formatDate(dateStr) {
-            if (!dateStr || dateStr === 'N/A') return 'N/A';
-            try {
-                const d = new Date(dateStr);
-                if (isNaN(d.getTime())) return dateStr;
-                return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-            } catch {
-                return dateStr;
-            }
-        }
-
-        // Main UI Render Function
-        function renderVehicleDetails(data) {
-            const dashboard = document.getElementById('vehicleDashboard');
-
-            // Extract nested properties safely
-            const makeData = data.makeData || {};
-            const modelData = data.modelData || {};
-            const rcStatus = safeVal(data.rc_status, 'UNKNOWN').toUpperCase();
-            
-            // Badge styles based on status
-            const isRcActive = rcStatus === 'ACTIVE';
-            const statusBadgeClass = isRcActive 
-                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' 
-                : 'bg-amber-500/10 text-amber-400 border-amber-500/30';
-
-            const brandLogo = makeData.v_make_logo_url || '';
-            const makeDisplayName = safeVal(makeData.v_make_display_name, safeVal(data.maker_description, 'Vehicle Make'));
-            const modelDisplayName = safeVal(modelData.v_model_display_name, safeVal(data.maker_model, 'Model Name'));
-
-            dashboard.innerHTML = `
-                <!-- Main Header Hero Card -->
-                <div class="bg-gradient-to-r from-slate-800 to-slate-800/90 border border-slate-700/80 rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden print-border">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-                        
-                        <div class="flex items-center space-x-5">
-                            ${brandLogo ? `
-                                <div class="bg-white p-3 rounded-2xl h-20 w-20 flex items-center justify-center shadow-lg border border-slate-200 shrink-0">
-                                    <img src="${brandLogo}" alt="${makeDisplayName}" class="max-h-14 max-w-14 object-contain" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-motorcycle text-3xl text-blue-400\'></i>';"/>
-                                </div>
-                            ` : `
-                                <div class="bg-blue-600/20 text-blue-400 p-4 rounded-2xl border border-blue-500/30 text-3xl shrink-0">
-                                    <i class="fa-solid fa-motorcycle"></i>
-                                </div>
-                            `}
-                            
-                            <div>
-                                <div class="flex flex-wrap items-center gap-2 mb-1">
-                                    <span class="text-2xl sm:text-3xl font-extrabold text-white tracking-wide uppercase">${safeVal(data.rc_number)}</span>
-                                    <span class="px-3 py-1 rounded-full text-xs font-bold border ${statusBadgeClass}">
-                                        <i class="fa-solid fa-circle text-[8px] mr-1.5 align-middle"></i>${rcStatus}
-                                    </span>
-                                </div>
-                                <h3 class="text-lg font-semibold text-slate-300">${modelDisplayName}</h3>
-                                <p class="text-sm text-slate-400 mt-0.5"><i class="fa-solid fa-industry text-xs mr-1"></i> ${safeVal(data.maker_description)}</p>
-                            </div>
-                        </div>
-
-                        <div class="flex flex-wrap md:flex-col items-start md:items-end gap-2 border-t md:border-t-0 border-slate-700/80 pt-4 md:pt-0">
-                            <div class="text-left md:text-right">
-                                <span class="text-xs text-slate-400 uppercase tracking-wider block font-medium">Category</span>
-                                <span class="text-sm font-semibold text-white">${safeVal(data.vehicle_category_description, safeVal(data.vehicle_category))}</span>
-                            </div>
-                            <div class="text-left md:text-right mt-1">
-                                <span class="text-xs text-slate-400 uppercase tracking-wider block font-medium">Norms</span>
-                                <span class="inline-block px-2.5 py-0.5 bg-slate-700/60 rounded text-xs text-slate-200 border border-slate-600/50">${safeVal(data.norms_type)}</span>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-                <!-- Quick Stats Grid -->
-                <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 flex items-center space-x-3.5 print-border">
-                        <div class="p-3 bg-amber-500/10 text-amber-400 rounded-lg"><i class="fa-solid fa-gas-pump text-xl"></i></div>
-                        <div>
-                            <p class="text-xs text-slate-400">Fuel Type</p>
-                            <p class="text-base font-bold text-white">${safeVal(data.fuel_type)}</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 flex items-center space-x-3.5 print-border">
-                        <div class="p-3 bg-blue-500/10 text-blue-400 rounded-lg"><i class="fa-solid fa-calendar-check text-xl"></i></div>
-                        <div>
-                            <p class="text-xs text-slate-400">Registration Date</p>
-                            <p class="text-base font-bold text-white">${formatDate(data.registration_date)}</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 flex items-center space-x-3.5 print-border">
-                        <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-lg"><i class="fa-solid fa-shield-halved text-xl"></i></div>
-                        <div>
-                            <p class="text-xs text-slate-400">Fitness Up To</p>
-                            <p class="text-base font-bold text-white">${formatDate(data.fit_up_to)}</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 flex items-center space-x-3.5 print-border">
-                        <div class="p-3 bg-purple-500/10 text-purple-400 rounded-lg"><i class="fa-solid fa-user-check text-xl"></i></div>
-                        <div>
-                            <p class="text-xs text-slate-400">Owner Count</p>
-                            <p class="text-base font-bold text-white">${safeVal(data.owner_number)} Owner(s)</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Detailed Info Cards Layout -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    
-                    <!-- Card 1: Owner & RTO Info -->
-                    <div class="bg-slate-800/50 border border-slate-700/70 rounded-2xl p-6 space-y-4 print-border">
-                        <div class="flex items-center space-x-2 border-b border-slate-700/70 pb-3">
-                            <i class="fa-solid fa-user-gear text-blue-400 text-lg"></i>
-                            <h4 class="font-bold text-white text-base">Owner & RTO Details</h4>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-3.5 gap-x-4 text-sm">
-                            <div>
-                                <span class="text-slate-400 text-xs block">Owner Name</span>
-                                <span class="font-semibold text-slate-100">${safeVal(data.owner_name)}</span>
-                            </div>
-                            <div>
-                                <span class="text-slate-400 text-xs block">Father's Name</span>
-                                <span class="font-semibold text-slate-100">${safeVal(data.father_name)}</span>
-                            </div>
-                            <div class="sm:col-span-2">
-                                <span class="text-slate-400 text-xs block">Registered RTO</span>
-                                <span class="font-semibold text-slate-100">${safeVal(data.registered_at)}</span>
-                            </div>
-                            <div class="sm:col-span-2">
-                                <span class="text-slate-400 text-xs block">Present / Permanent Address</span>
-                                <span class="font-semibold text-slate-100">${safeVal(data.present_address, safeVal(data.permanent_address))}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card 2: Insurance & Compliance -->
-                    <div class="bg-slate-800/50 border border-slate-700/70 rounded-2xl p-6 space-y-4 print-border">
-                        <div class="flex items-center space-x-2 border-b border-slate-700/70 pb-3">
-                            <i class="fa-solid fa-file-contract text-emerald-400 text-lg"></i>
-                            <h4 class="font-bold text-white text-base">Insurance & Compliance</h4>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-3.5 gap-x-4 text-sm">
-                            <div class="sm:col-span-2">
-                                <span class="text-slate-400 text-xs block">Insurance Company</span>
-                                <span class="font-semibold text-slate-100">${safeVal(data.insurance_company)}</span>
-                            </div>
-                            <div>
-                                <span class="text-slate-400 text-xs block">Policy Number</span>
-                                <span class="font-semibold text-slate-100 break-all">${safeVal(data.insurance_policy_number)}</span>
-                            </div>
-                            <div>
-                                <span class="text-slate-400 text-xs block">Insurance Valid Upto</span>
-                                <span class="font-semibold text-slate-100">${formatDate(data.insurance_upto)}</span>
-                            </div>
-                            <div>
-                                <span class="text-slate-400 text-xs block">PUCC Number</span>
-                                <span class="font-semibold text-slate-100">${safeVal(data.pucc_number)}</span>
-                            </div>
-                            <div>
-                                <span class="text-slate-400 text-xs block">PUCC Valid Upto</span>
-                                <span class="font-semibold text-slate-100">${formatDate(data.pucc_upto)}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card 3: Vehicle Specs & Identification -->
-                    <div class="bg-slate-800/50 border border-slate-700/70 rounded-2xl p-6 space-y-4 print-border">
-                        <div class="flex items-center space-x-2 border-b border-slate-700/70 pb-3">
-                            <i class="fa-solid fa-microchip text-purple-400 text-lg"></i>
-                            <h4 class="font-bold text-white text-base">Vehicle Specifications</h4>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-3.5 gap-x-4 text-sm">
-                            <div>
-                                <span class="text-slate-400 text-xs block">Chassis Number</span>
-                                <span class="font-semibold text-slate-100 font-mono text-xs tracking-wider">${safeVal(data.vehicle_chasi_number)}</span>
-                            </div>
-                            <div>
-                                <span class="text-slate-400 text-xs block">Engine Number</span>
-                                <span class="font-semibold text-slate-100 font-mono text-xs tracking-wider">${safeVal(data.vehicle_engine_number)}</span>
-                            </div>
-                            <div>
-                                <span class="text-slate-400 text-xs block">Cubic Capacity (CC)</span>
-                                <span class="font-semibold text-slate-100">${safeVal(data.cubic_capacity)} cc</span>
-                            </div>
-                            <div>
-                                <span class="text-slate-400 text-xs block">Cylinders</span>
-                                <span class="font-semibold text-slate-100">${safeVal(data.no_cylinders)}</span>
-                            </div>
-                            <div>
-                                <span class="text-slate-400 text-xs block">Manufacturing Date</span>
-                                <span class="font-semibold text-slate-100">${safeVal(data.manufacturing_date)}</span>
-                            </div>
-                            <div>
-                                <span class="text-slate-400 text-xs block">Body Type / Seating</span>
-                                <span class="font-semibold text-slate-100">${safeVal(data.body_type)} (${safeVal(data.seat_capacity)} Seats)</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card 4: Tax & Finance Status -->
-                    <div class="bg-slate-800/50 border border-slate-700/70 rounded-2xl p-6 space-y-4 print-border">
-                        <div class="flex items-center space-x-2 border-b border-slate-700/70 pb-3">
-                            <i class="fa-solid fa-receipt text-amber-400 text-lg"></i>
-                            <h4 class="font-bold text-white text-base">Tax & Financier Information</h4>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-3.5 gap-x-4 text-sm">
-                            <div>
-                                <span class="text-slate-400 text-xs block">Tax Paid Upto</span>
-                                <span class="font-semibold text-slate-100">${formatDate(data.tax_paid_upto)}</span>
-                            </div>
-                            <div>
-                                <span class="text-slate-400 text-xs block">Financed Status</span>
-                                <span class="font-semibold text-slate-100">${data.financed ? 'Yes' : 'No'}</span>
-                            </div>
-                            <div class="sm:col-span-2">
-                                <span class="text-slate-400 text-xs block">Financer Name</span>
-                                <span class="font-semibold text-slate-100">${safeVal(data.financer, 'N/A (Unfinanced)')}</span>
-                            </div>
-                            <div>
-                                <span class="text-slate-400 text-xs block">Unladen / Gross Weight</span>
-                                <span class="font-semibold text-slate-100">${safeVal(data.unladen_weight)} kg / ${safeVal(data.vehicle_gross_weight)} kg</span>
-                            </div>
-                            <div>
-                                <span class="text-slate-400 text-xs block">Blacklist Status</span>
-                                <span class="font-semibold text-slate-100">${safeVal(data.blacklist_status, 'Clean Record')}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- Raw JSON View Accordion -->
-                <div class="bg-slate-800/30 border border-slate-700/50 rounded-2xl p-4 no-print">
-                    <button onclick="toggleJsonView()" class="flex items-center justify-between w-full text-slate-400 hover:text-white transition-colors text-sm font-medium">
-                        <span><i class="fa-solid fa-code text-xs mr-2"></i>View Raw API Response (JSON)</span>
-                        <i id="jsonChevron" class="fa-solid fa-chevron-down text-xs transition-transform duration-200"></i>
-                    </button>
-                    <div id="jsonViewContainer" class="hidden mt-4">
-                        <pre class="bg-slate-950 p-4 rounded-xl text-xs font-mono text-emerald-400 overflow-x-auto border border-slate-800 max-h-96">${JSON.stringify(data, null, 2)}</pre>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Toggle JSON View Visibility
-        function toggleJsonView() {
-            const container = document.getElementById('jsonViewContainer');
-            const chevron = document.getElementById('jsonChevron');
-            container.classList.toggle('hidden');
-            chevron.classList.toggle('rotate-180');
-        }
-
-        // Auto-fetch example vehicle UP32FT8571 on startup
-        window.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('vehicleInput').value = 'UP32FT8571';
-            fetchVehicleData('UP32FT8571');
-        });
-    </script>
 </body>
 </html>
