@@ -4,7 +4,6 @@ import requests
 
 app = FastAPI()
 
-# CORS allow karna zaroori hai taaki website backend se baat kar sake
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
